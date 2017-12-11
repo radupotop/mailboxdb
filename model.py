@@ -22,7 +22,7 @@ class MsgMeta(BaseModel):
     these can be filled-in after the initial download of raw messages.
     """
     date = pw.DateTimeField(null=True)
-    from_ = pw.CharField(db_column='from', null=True)
+    from_ = pw.CharField(null=True)
     to = pw.CharField(null=True)
     subject = pw.CharField(null=True)
     has_attachment = pw.BooleanField(null=True)
