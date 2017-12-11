@@ -29,16 +29,17 @@ if box_status == OK_STATUS:
 
         if msg_status == OK_STATUS:
             raw_email = msg_data[0][1]
-            csum = hashlib.sha256(raw_email).hexdigest()
+            checksum = hashlib.sha256(raw_email).hexdigest()
 
             email_msg = email.message_from_bytes(raw_email)
 
-            rmsg = RawMsg.create(email_blob=raw_email, csum=csum, imap_uid=message)
+            rmsg = RawMsg.create(email_blob=raw_email, checksum=checksum)
 
             mmeta = MsgMeta.create(
-                        date=email_msg.get('Date'), 
+                        imap_uid=message,
+                        checksum=checksum,
                         from_=email_msg.get('From'), 
                         to=email_msg.get('To'),
                         subject=email_msg.get('Subject'),
-                        csum=csum
+                        date=email_msg.get('Date'), 
                     )
