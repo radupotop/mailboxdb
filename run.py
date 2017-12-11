@@ -21,9 +21,11 @@ if box_status == OK_STATUS:
 
     if msg_status == OK_STATUS:
         """
-        msg schema:
+        raw_msg schema:
+        csum (uniq FK) | raw_email (data sqlite)
 
-        csum (uniq) | raw_email (data sqlite) | from | date | subject 
+        msg schema:
+        csum (uniq) | date | from | to | subject | has_attachment | fetch_date | imap_uid 
         """
         raw_email = msg_data[0][1]
 
