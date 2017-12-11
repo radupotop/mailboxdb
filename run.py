@@ -1,16 +1,16 @@
 import email
 import hashlib
 import imaplib
-import yaml
+from configparser import ConfigParser
 
 from model import RawMsg, MsgMeta
 
 
 OK_STATUS = 'OK'
 
-settings_yaml = open('credentials.yaml').read()
-settings = yaml.load(settings_yaml)
-
+config = ConfigParser()
+config.read('credentials.ini')
+settings = config.defaults()
 
 mbox = imaplib.IMAP4_SSL(settings['server'])
 mbox.login(settings['username'], settings['password'])
