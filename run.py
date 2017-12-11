@@ -24,13 +24,6 @@ if box_status == OK_STATUS:
     msg_status, msg_data = mbox.uid('fetch', message, '(RFC822)')
 
     if msg_status == OK_STATUS:
-        """
-        raw_msg schema:
-        csum (uniq FK) | raw_email (data sqlite)
-
-        msg schema:
-        csum (uniq) | date | from | to | subject | has_attachment | fetch_date | imap_uid 
-        """
         raw_email = msg_data[0][1]
 
         email_msg = emai.message_from_bytes(raw_email)
