@@ -25,6 +25,7 @@ if box_status == OK_STATUS:
 
     for message in message_uids:
         msg_status, msg_data = mbox.uid('fetch', message, '(RFC822)')
+        print(message)
 
         if msg_status == OK_STATUS:
             raw_email = msg_data[0][1]
@@ -32,7 +33,7 @@ if box_status == OK_STATUS:
 
             email_msg = email.message_from_bytes(raw_email)
 
-            rmsg = RawMsg.create(email_blob=raw_email, csum=csum, imap_uid=None)
+            rmsg = RawMsg.create(email_blob=raw_email, csum=csum, imap_uid=message)
 
             mmeta = MsgMeta.create(
                         date=email_msg.get('Date'), 
