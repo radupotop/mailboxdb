@@ -1,13 +1,17 @@
 import email
 import hashlib
 import imaplib
+import yaml
 
 
 OK_STATUS = 'OK'
 
+settings_yaml = open('credentials.yaml').read()
+settings = yaml.load(settings_yaml)
 
-mbox = imaplib.IMAP4_SSL('imap.gmail.com')
-mbox.login('myusername@gmail.com', 'mypassword')
+
+mbox = imaplib.IMAP4_SSL(settings['server'])
+mbox.login(settings['username'], settings['password'])
 mbox.list()
 
 mbox.select('INBOX', readonly=True)
