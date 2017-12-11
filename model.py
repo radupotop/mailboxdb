@@ -28,6 +28,7 @@ class MsgMeta(BaseModel):
     has_attachment = pw.BooleanField(null=True)
     csum = pw.ForeignKeyField(RawMsg, to_field='csum')
 
-
 db.connect()
-db.create_tables([RawMsg, MsgMeta])
+
+if __name__ == '__main__':
+    db.create_tables([RawMsg, MsgMeta])

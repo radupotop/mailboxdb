@@ -3,6 +3,8 @@ import hashlib
 import imaplib
 import yaml
 
+from model import RawMsg, MsgMeta
+
 
 OK_STATUS = 'OK'
 
@@ -21,14 +23,21 @@ box_status, box_data = mbox.uid('search', None, 'ALL')
 if box_status == OK_STATUS:
     message_uids = box_data[0].split()
 
-    msg_status, msg_data = mbox.uid('fetch', message, '(RFC822)')
+    for message in message_uids:
+        msg_status, msg_data = mbox.uid('fetch', message, '(RFC822)')
 
-    if msg_status == OK_STATUS:
-        raw_email = msg_data[0][1]
+        if msg_status == OK_STATUS:
+            raw_email = msg_data[0][1]
+            csum = hashlib.sha256(raw_email).hexdigest()
 
-        email_msg = emai.message_from_bytes(raw_email)
-        email_msg.get('From')
-        email_msg.get('Date')
-        email_msg.get('Subject')
+            email_msg = email.message_from_bytes(raw_email)
 
-        csum = hashlib.sha1(raw_email).hexdigest()
+            rmsg = RawMsg.create(email_blob=raw_email, csum=csum, imap_uid=None)
+
+            mmeta = MsgMeta.create(
+                        date=email_msg.get('Date'), 
+                        from_=email_msg.get('From'), 
+                        to=email_msg.get('To'),
+                        subject=email_msg.get('Subject'),
+                        csum=csum
+                    )
