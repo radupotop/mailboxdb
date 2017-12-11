@@ -1,4 +1,4 @@
-import datetime
+from datetime import datetime
 import peewee as pw
 
 db = pw.SqliteDatabase('messages.db')
@@ -12,16 +12,20 @@ class BaseModel(pw.Model):
 class RawMsg(BaseModel):
     email_blob = pw.BlobField()
     csum = pw.CharField(unique=True, index=True)
-    imap_uid = pw.CharField(index=True)
-    fetch_time = pw.DateTimeField(default=datetime.datetime.now)
+    imap_uid = pw.CharField(index=True, null=True)
+    fetch_time = pw.DateTimeField(default=datetime.utcnow)
 
 
 class MsgMeta(BaseModel):
-    date = pw.DateTimeField()
-    from_ = pw.CharField(db_column='from')
-    to = pw.CharField()
-    subject = pw.CharField()
-    has_attachment = pw.BooleanField(default=False)
+    """
+    Metadata for messages, 
+    these can be filled-in after the initial download of raw messages.
+    """
+    date = pw.DateTimeField(null=True)
+    from_ = pw.CharField(db_column='from', null=True)
+    to = pw.CharField(null=True)
+    subject = pw.CharField(null=True)
+    has_attachment = pw.BooleanField(null=True)
     csum = pw.ForeignKeyField(RawMsg, to_field='csum')
 
 
