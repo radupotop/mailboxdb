@@ -23,9 +23,9 @@ box_status, box_data = mbox.uid('search', None, 'ALL')
 if box_status == OK_STATUS:
     message_uids = box_data[0].split()
 
-    for message in message_uids:
-        msg_status, msg_data = mbox.uid('fetch', message, '(RFC822)')
-        print(message)
+    for m_uid in message_uids:
+        msg_status, msg_data = mbox.uid('fetch', m_uid, '(RFC822)')
+        print(m_uid)
 
         if msg_status == OK_STATUS:
             raw_email = msg_data[0][1]
@@ -36,7 +36,7 @@ if box_status == OK_STATUS:
             rmsg = RawMsg.create(email_blob=raw_email, checksum=checksum)
 
             mmeta = MsgMeta.create(
-                        imap_uid=message,
+                        imap_uid=m_uid,
                         checksum=checksum,
                         from_=email_msg.get('From'), 
                         to=email_msg.get('To'),

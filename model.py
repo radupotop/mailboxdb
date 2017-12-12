@@ -22,7 +22,7 @@ class MsgMeta(BaseModel):
     Metadata for messages.
     """
     imap_uid = pw.CharField(index=True)
-    checksum = pw.ForeignKeyField(RawMsg, to_field='checksum')
+    checksum = pw.ForeignKeyField(RawMsg, to_field='checksum', related_name='msgmeta')
     fetch_time = pw.DateTimeField(default=datetime.utcnow)
     
     from_ = pw.CharField(null=True)
