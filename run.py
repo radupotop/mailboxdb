@@ -19,6 +19,7 @@ mbox.list()
 mbox.select('INBOX', readonly=True)
 
 box_status, box_data = mbox.uid('search', None, 'ALL')
+# box_status, box_data = mbox.uid('search', None, 'UID', start_message_uid + ':*')
 
 if box_status == OK_STATUS:
     message_uids = box_data[0].split()
@@ -48,3 +49,5 @@ if box_status == OK_STATUS:
                     )
 
             print(m_uid, from_, to, subject)
+
+mbox.logout()
