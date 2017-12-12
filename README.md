@@ -1,5 +1,4 @@
-Fetch emails from mailbox and store them in a db.
-
+**Fetch emails from mailbox and store them in a db.
 
 
 # Installing
@@ -7,3 +6,11 @@ Fetch emails from mailbox and store them in a db.
     python -m venv env
     source env/bin/activate
     pip install -r requirements.txt
+
+
+# Credentials file format
+
+    [DEFAULT]
+    server = imap.gmail.com
+    username = user
+    password = pass
