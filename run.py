@@ -35,7 +35,7 @@ if box_status == OK_STATUS:
             from_ = email_msg.get('From')
             to = email_msg.get('To')
             subject = email_msg.get('Subject')
-            date = email_msg.get('Date')
+            date = email.utils.parsedate_to_datetime(email_msg.get('Date'))
 
             rmsg = RawMsg.create(email_blob=raw_email, checksum=checksum)
 

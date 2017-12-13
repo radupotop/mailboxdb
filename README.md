@@ -1,4 +1,6 @@
-**Fetch emails from mailbox and store them in a db.
+# gmaildb
+
+**Fetch emails from mailbox and store them in a db.**
 
 
 # Installing
