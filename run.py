@@ -16,6 +16,7 @@ mbox = imaplib.IMAP4_SSL(settings['server'])
 mbox.login(settings['username'], settings['password'])
 mbox.list()
 
+# mbox.select('"[Gmail]/All Mail"', readonly=True)
 mbox.select('INBOX', readonly=True)
 
 box_status, box_data = mbox.uid('search', None, 'ALL')
