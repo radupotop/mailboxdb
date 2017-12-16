@@ -19,12 +19,12 @@ class RawMsg(BaseModel):
     """
     Raw message as fetched from IMAP server.
     """
-    checksum = pw.CharField(unique=True, index=True, help="Checksum of the original message on the server")
-    email_blob = pw.BlobField()
+    checksum = pw.CharField(unique=True, index=True, help_text='Checksum of the original message on the server')
+    email_blob = pw.BlobField(help_text='Email blob with attachments removed')
 
 
 class Attachment(BaseModel):
-    file_checksum = pw.CharField(index=True, help="Checksum of the binary file")
+    file_checksum = pw.CharField(index=True, help_text='Checksum of the binary file on disk')
     rawmsg_checksum = pw.ForeignKeyField(RawMsg, to_field='checksum', related_name='attachments')
     filename = pw.CharField(null=True)
     content_type = pw.CharField(null=True)
