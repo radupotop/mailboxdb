@@ -38,6 +38,8 @@ if box_status == OK_STATUS:
             subject = email_msg.get('Subject')
             date = email.utils.parsedate_to_datetime(email_msg.get('Date'))
 
+            # set_payload('')
+
             rmsg = RawMsg.create(email_blob=raw_email, checksum=checksum)
 
             mmeta = MsgMeta.create(
