@@ -38,9 +38,13 @@ if box_status == OK_STATUS:
             subject = email_msg.get('Subject')
             date = email.utils.parsedate_to_datetime(email_msg.get('Date'))
 
-            # set_payload('')
             # f.get_filename()
             # f.get_content_type()
+
+            # f.set_param('hash', None, 'X-file-checksum')
+
+            # f.get_payload()
+            # f.set_payload(None)
 
             rmsg = RawMsg.create(email_blob=raw_email, checksum=checksum)
 
