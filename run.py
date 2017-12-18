@@ -50,11 +50,24 @@ def fetch_all_messages(message_uids: list):
         yield email_msg, checksum, m_uid
 
 def process_message(email_msg: Message, checksum: str, m_uid: str):
-
-        for part in email_msg.walk():
-            process_attachment(part, checksum)
+        
+        # We need to parse attachments first.
+        # They are extracted and removed from messages.
+        _attachments = [process_attachment(part) for part in email_msg.walk()]
+        attachments = list(filter(None, _attachments))
+        has_attachments = len(attachments) > 0
 
         rmsg = RawMsg.create(email_blob=email_msg.as_bytes(), checksum=checksum)
+
+        if has_attachments:
+            for file_checksum, filename, content_type in attachments:
+                print(file_checksum, filename, content_type)
+                Attachment.create(
+                    file_checksum=file_checksum,
+                    rawmsg_checksum=checksum,
+                    filename=filename,
+                    content_type=content_type,
+                )
 
         # Parse metadata
         from_ = email_msg.get('From')
@@ -69,11 +82,16 @@ def process_message(email_msg: Message, checksum: str, m_uid: str):
                     to=to,
                     subject=subject,
                     date=date,
+                    has_attachments=has_attachments,
                 )
 
         print(m_uid, from_, to, subject)
 
-def process_attachment(part: Message, checksum: str):
+def process_attachment(part: Message):
+    """
+    Remove attachments from email messages and save them as files.
+    The message will be altered.
+    """
 
     filename = part.get_filename()
     if not filename:
@@ -83,22 +101,14 @@ def process_attachment(part: Message, checksum: str):
     payload = part.get_payload().encode()
     file_checksum = hashlib.sha256(payload).hexdigest()
 
-    Attachment.create(
-        file_checksum=file_checksum,
-        rawmsg_checksum=checksum,
-        filename=filename,
-        content_type=content_type,
-    )
-
-    part.set_param(file_checksum, None, header='X-File-Checksum')
-    part.set_payload(None)
-
     fp = open('attachments/' + file_checksum, 'wb')
     fp.write(decodebytes(payload))
     fp.close()
+    
+    part.set_param(file_checksum, None, header='X-File-Checksum')
+    part.set_payload(None)
 
-    return file_checksum
-
+    return file_checksum, filename, content_type
 
 
 

@@ -42,7 +42,7 @@ class MsgMeta(BaseModel):
     to = pw.CharField(null=True)
     subject = pw.CharField(null=True)
     date = pw.CharField(null=True)
-    has_attachment = pw.BooleanField(null=True)
+    has_attachments = pw.BooleanField(null=True)
 
 db.connect()
 
