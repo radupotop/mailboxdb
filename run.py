@@ -1,6 +1,5 @@
 import email
 import hashlib
-from base64 import decodebytes
 from configparser import ConfigParser
 from email.message import Message
 from imaplib import IMAP4, IMAP4_SSL
@@ -98,11 +97,11 @@ def process_attachment(part: Message):
         return
 
     content_type = part.get_content_type()
-    payload = part.get_payload().encode()
+    payload = part.get_payload(decode=True)
     file_checksum = hashlib.sha256(payload).hexdigest()
 
     fp = open('attachments/' + file_checksum, 'wb')
-    fp.write(decodebytes(payload))
+    fp.write(payload)
     fp.close()
     
     part.set_param(file_checksum, None, header='X-File-Checksum')
