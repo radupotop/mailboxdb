@@ -1,28 +1,28 @@
 import email
 import hashlib
-import imaplib
 from base64 import decodebytes
 from configparser import ConfigParser
 from email.message import Message
+from imaplib import IMAP4, IMAP4_SSL
 
-from model import RawMsg, MsgMeta, Attachment
+from model import Attachment, MsgMeta, RawMsg
 
 
 OK_STATUS = 'OK'
 
 
-def parse_config():
+def _parse_config():
     config = ConfigParser()
     config.read('credentials.ini')
     return config.defaults()
 
 def connect():
-    settings = parse_config()
-    mbox = imaplib.IMAP4_SSL(settings['server'])
+    settings = _parse_config()
+    mbox = IMAP4_SSL(settings['server'])
     mbox.login(settings['username'], settings['password'])
     return mbox
 
-def get_message_uids(label='INBOX'):
+def get_message_uids(mbox: IMAP4, label='INBOX'):
     mbox.select(label, readonly=True)
     # mbox.select('"[Gmail]/All Mail"', readonly=True)
 
@@ -47,19 +47,20 @@ def fetch_all_messages(message_uids: list):
         checksum = hashlib.sha256(raw_email).hexdigest()
         email_msg = email.message_from_bytes(raw_email)
 
-        yield email_msg, checksum
+        yield email_msg, checksum, m_uid
 
-def process_message(email_msg: Message, checksum: str):
-
-        from_ = email_msg.get('From')
-        to = email_msg.get('To')
-        subject = email_msg.get('Subject')
-        date = email.utils.parsedate_to_datetime(email_msg.get('Date'))
+def process_message(email_msg: Message, checksum: str, m_uid: str):
 
         for part in email_msg.walk():
             process_attachment(part, checksum)
 
-        rmsg = RawMsg.create(email_blob=raw_email, checksum=checksum)
+        rmsg = RawMsg.create(email_blob=email_msg.as_bytes(), checksum=checksum)
+
+        # Parse metadata
+        from_ = email_msg.get('From')
+        to = email_msg.get('To')
+        subject = email_msg.get('Subject')
+        date = email.utils.parsedate_to_datetime(email_msg.get('Date'))
 
         mmeta = MsgMeta.create(
                     imap_uid=m_uid,
@@ -83,18 +84,30 @@ def process_attachment(part: Message, checksum: str):
     file_checksum = hashlib.sha256(payload).hexdigest()
 
     Attachment.create(
-        filename=filename,
-        content_type=content_type,
         file_checksum=file_checksum,
         rawmsg_checksum=checksum,
+        filename=filename,
+        content_type=content_type,
     )
 
-    part.set_param(file_checksum, None, 'X-File-Checksum')
+    part.set_param(file_checksum, None, header='X-File-Checksum')
     part.set_payload(None)
 
     fp = open('attachments/' + file_checksum, 'wb')
     fp.write(decodebytes(payload))
+    fp.close()
 
     return file_checksum
+
+
+
+
+mbox = connect()
+message_uids = get_message_uids(mbox)
+all_msg_gen = fetch_all_messages(message_uids)
+
+for msg in all_msg_gen:
+    process_message(*msg)
+
 
 mbox.logout()
