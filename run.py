@@ -67,6 +67,12 @@ def process_message(email_msg: Message, checksum: str, m_uid: str):
         attachments = list(filter(None, _attachments))
         has_attachments = len(attachments) > 0
 
+        # Parse metadata
+        from_ = email_msg.get('From')
+        to = email_msg.get('To')
+        subject = email_msg.get('Subject')
+        date = email.utils.parsedate_to_datetime(email_msg.get('Date'))
+
         rmsg = RawMsg.create(email_blob=email_msg.as_bytes(), checksum=checksum)
 
         if has_attachments:
@@ -78,12 +84,6 @@ def process_message(email_msg: Message, checksum: str, m_uid: str):
                     filename=filename,
                     content_type=content_type,
                 )
-
-        # Parse metadata
-        from_ = email_msg.get('From')
-        to = email_msg.get('To')
-        subject = email_msg.get('Subject')
-        date = email.utils.parsedate_to_datetime(email_msg.get('Date'))
 
         mmeta = MsgMeta.create(
                     imap_uid=m_uid,
