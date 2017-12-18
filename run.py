@@ -80,15 +80,15 @@ def process_message(email_msg: Message, checksum: str, m_uid: str):
                 for file_checksum, filename, content_type in attachments:
                     print(file_checksum, filename, content_type)
                     Attachment.create(
-                        file_checksum=file_checksum,
                         rawmsg_checksum=checksum,
+                        file_checksum=file_checksum,
                         filename=filename,
                         content_type=content_type,
                     )
 
             mmeta = MsgMeta.create(
-                        imap_uid=m_uid,
                         checksum=checksum,
+                        imap_uid=m_uid,
                         from_=from_,
                         to=to,
                         subject=subject,
