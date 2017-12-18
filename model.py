@@ -44,6 +44,11 @@ class MsgMeta(BaseModel):
     date = pw.CharField(null=True)
     has_attachments = pw.BooleanField(null=True)
 
+def get_latest_uid():
+    latest = MsgMeta.select(pw.fn.MAX(MsgMeta.imap_uid)).get()
+    if latest:
+        return latest.imap_uid
+
 db.connect()
 
 if __name__ == '__main__':
