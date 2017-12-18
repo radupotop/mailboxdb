@@ -4,7 +4,7 @@ from configparser import ConfigParser
 from email.message import Message
 from imaplib import IMAP4, IMAP4_SSL
 
-from model import Attachment, MsgMeta, RawMsg, get_latest_uid
+from model import Attachment, MsgMeta, RawMsg, db, get_latest_uid
 
 
 OK_STATUS = 'OK'
@@ -73,27 +73,28 @@ def process_message(email_msg: Message, checksum: str, m_uid: str):
         subject = email_msg.get('Subject')
         date = email.utils.parsedate_to_datetime(email_msg.get('Date'))
 
-        rmsg = RawMsg.create(email_blob=email_msg.as_bytes(), checksum=checksum)
+        with db.atomic():
+            rmsg = RawMsg.create(email_blob=email_msg.as_bytes(), checksum=checksum)
 
-        if has_attachments:
-            for file_checksum, filename, content_type in attachments:
-                print(file_checksum, filename, content_type)
-                Attachment.create(
-                    file_checksum=file_checksum,
-                    rawmsg_checksum=checksum,
-                    filename=filename,
-                    content_type=content_type,
-                )
+            if has_attachments:
+                for file_checksum, filename, content_type in attachments:
+                    print(file_checksum, filename, content_type)
+                    Attachment.create(
+                        file_checksum=file_checksum,
+                        rawmsg_checksum=checksum,
+                        filename=filename,
+                        content_type=content_type,
+                    )
 
-        mmeta = MsgMeta.create(
-                    imap_uid=m_uid,
-                    checksum=checksum,
-                    from_=from_,
-                    to=to,
-                    subject=subject,
-                    date=date,
-                    has_attachments=has_attachments,
-                )
+            mmeta = MsgMeta.create(
+                        imap_uid=m_uid,
+                        checksum=checksum,
+                        from_=from_,
+                        to=to,
+                        subject=subject,
+                        date=date,
+                        has_attachments=has_attachments,
+                    )
 
         print(m_uid, from_, to, subject)
 
