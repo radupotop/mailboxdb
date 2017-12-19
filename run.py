@@ -87,7 +87,7 @@ def process_message(email_msg: Message, checksum: str, m_uid: str):
                     )
 
             mmeta = MsgMeta.create(
-                        checksum=checksum,
+                        rawmsg_checksum=checksum,
                         imap_uid=m_uid,
                         from_=from_,
                         to=to,
