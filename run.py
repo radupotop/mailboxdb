@@ -139,6 +139,8 @@ except pw.IntegrityError as err:
         print('Duplicate first message, carry on.')
     else:
         raise err
+except StopIteration:
+    print('No new messages.')
 
 for msg in all_msg_gen:
     process_message(*msg)
