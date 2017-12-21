@@ -35,6 +35,7 @@ def get_message_uids(mbox: IMAP4, label='INBOX'):
     if box_status != OK_STATUS:
         return
 
+    # This will be a list of bytes
     message_uids = box_data[0].split()
 
     if latest_uid:
@@ -45,7 +46,7 @@ def get_message_uids(mbox: IMAP4, label='INBOX'):
 
     return message_uids
 
-def fetch_all_messages(message_uids: list):
+def fetch_all_messages(mbox: IMAP4, message_uids: list):
     for m_uid in message_uids:
         msg_status, msg_data = mbox.uid('fetch', m_uid, '(RFC822)')
 
@@ -125,10 +126,9 @@ def process_attachment(part: Message):
 
 mbox = connect()
 message_uids = get_message_uids(mbox)
-all_msg_gen = fetch_all_messages(message_uids)
+all_msg_gen = fetch_all_messages(mbox, message_uids)
 
 for msg in all_msg_gen:
     process_message(*msg)
-
 
 mbox.logout()
