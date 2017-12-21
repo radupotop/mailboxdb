@@ -4,7 +4,7 @@ from configparser import ConfigParser
 from email.message import Message
 from imaplib import IMAP4, IMAP4_SSL
 
-from model import Attachment, MsgMeta, RawMsg, db, get_latest_uid
+from model import Attachment, MsgMeta, RawMsg, db, get_latest_uid, pw
 
 
 OK_STATUS = 'OK'
@@ -38,7 +38,7 @@ def get_message_uids(mbox: IMAP4, label='INBOX'):
     # This will be a list of bytes
     message_uids = box_data[0].split()
 
-    if latest_uid:
+    if latest_uid and latest_uid.encode() in message_uids:
         message_uids.remove(latest_uid.encode())
 
     print(latest_uid)
@@ -127,6 +127,18 @@ def process_attachment(part: Message):
 mbox = connect()
 message_uids = get_message_uids(mbox)
 all_msg_gen = fetch_all_messages(mbox, message_uids)
+
+# Accept that the first message might be a duplicate.
+# This is because IMAP fetch will always get the latest message from the mailbox,
+# even if the UID we specify is higher than the latest one.
+try:
+    first_msg = next(all_msg_gen)
+    process_message(*first_msg)
+except pw.IntegrityError as err:
+    if 'UNIQUE constraint failed: rawmsg.checksum' in str(err):
+        print('Duplicate first message, carry on.')
+    else:
+        raise err
 
 for msg in all_msg_gen:
     process_message(*msg)
