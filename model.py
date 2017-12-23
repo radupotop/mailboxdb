@@ -48,8 +48,3 @@ def get_latest_uid():
     latest = MsgMeta.select(pw.fn.MAX(MsgMeta.imap_uid)).get()
     if latest:
         return latest.imap_uid
-
-db.connect()
-
-if __name__ == '__main__':
-    db.create_tables([RawMsg, MsgMeta, Attachment])

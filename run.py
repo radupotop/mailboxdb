@@ -123,26 +123,35 @@ def process_attachment(part: Message):
     return file_checksum, filename, content_type
 
 
+def run():
+    db.connect()
+    mbox = connect()
+    message_uids = get_message_uids(mbox)
+    all_msg_gen = fetch_all_messages(mbox, message_uids)
 
-mbox = connect()
-message_uids = get_message_uids(mbox)
-all_msg_gen = fetch_all_messages(mbox, message_uids)
+    # Accept that the first message might be a duplicate.
+    # This is because IMAP fetch will always get the latest message from the mailbox,
+    # even if the UID we specify is higher than the latest one.
+    try:
+        first_msg = next(all_msg_gen)
+        process_message(*first_msg)
+    except pw.IntegrityError as err:
+        if 'UNIQUE constraint failed: rawmsg.checksum' in str(err):
+            print('Duplicate first message, carry on.')
+        else:
+            raise err
+    except StopIteration:
+        print('No new messages.')
 
-# Accept that the first message might be a duplicate.
-# This is because IMAP fetch will always get the latest message from the mailbox,
-# even if the UID we specify is higher than the latest one.
-try:
-    first_msg = next(all_msg_gen)
-    process_message(*first_msg)
-except pw.IntegrityError as err:
-    if 'UNIQUE constraint failed: rawmsg.checksum' in str(err):
-        print('Duplicate first message, carry on.')
-    else:
-        raise err
-except StopIteration:
-    print('No new messages.')
+    for msg in all_msg_gen:
+        process_message(*msg)
 
-for msg in all_msg_gen:
-    process_message(*msg)
+    mbox.logout()
 
-mbox.logout()
+
+def bootstrap():
+    db.connect()
+    db.create_tables([RawMsg, MsgMeta, Attachment])
+
+
+run()
