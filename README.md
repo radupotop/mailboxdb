@@ -1,6 +1,7 @@
-# gmaildb
+# mailboxdb
 
-**Fetch emails from mailbox and store them in a db.**
+Fetch emails from mailbox and store them in a db.  
+Attachments are extracted and stored as separate files for simplified browsing and space efficiency.
 
 
 # Installing
