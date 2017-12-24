@@ -1,3 +1,4 @@
+import argparse
 import email
 import hashlib
 from configparser import ConfigParser
@@ -154,4 +155,23 @@ def bootstrap():
     db.create_tables([RawMsg, MsgMeta, Attachment])
 
 
-run()
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser()
+    parser.add_argument('-c', '--config', action='store_true', help='Configure the db')
+    parser.add_argument('-r', '--run', action='store_true', help='Run main loop')
+    parser.add_argument('-q', '--quiet', action='store_true', help='Do not output anything')
+    parser.add_argument('--debug', action='store_true', help='Output debug messages')
+    args = parser.parse_args()
+
+    if args.run:
+        run()
+    elif args.config:
+        try:
+            bootstrap()
+        except pw.OperationalError as err:
+            if 'already exists' in str(err):
+                print('The database is already configured.')
+            else:
+                raise err
+    else:
+        parser.print_help()

@@ -4,7 +4,7 @@ import peewee as pw
 db = pw.SqliteDatabase('messages.db')
 
 # db = pw.PostgresqlDatabase(
-#     'gmaildb',
+#     'mailboxdb',
 #     user='postgres',
 #     password='',
 #     host='localhost',
