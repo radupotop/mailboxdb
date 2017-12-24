@@ -18,9 +18,10 @@ Attachments are extracted and stored as separate files for simplified browsing a
     username = user
     password = pass
 
-# TODO
+# Todo
 
 - use logging for info and debug
 - use argparse to route between config, bootstrap, and run stages
 - config opt to switch between db backends
 - testing
+- use classes
