@@ -5,7 +5,7 @@ from configparser import ConfigParser
 from email.message import Message
 from imaplib import IMAP4, IMAP4_SSL
 
-from model import Attachment, MsgMeta, RawMsg, db, get_latest_uid, pw
+from model import Attachment, MsgMeta, RawMsg, db, pw
 
 
 OK_STATUS = 'OK'
@@ -26,7 +26,7 @@ def get_message_uids(mbox: IMAP4, label='INBOX'):
     mbox.select(label, readonly=True)
     # mbox.select('"[Gmail]/All Mail"', readonly=True)
 
-    latest_uid = get_latest_uid()
+    latest_uid = MsgMeta.get_latest_uid()
 
     if latest_uid:
         box_status, box_data = mbox.uid('search', None, 'UID', latest_uid + ':*')
