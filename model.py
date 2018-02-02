@@ -24,7 +24,7 @@ class RawMsg(BaseModel):
 
 
 class Attachment(BaseModel):
-    rawmsg = pw.ForeignKeyField(RawMsg, related_name='attachments')
+    rawmsg = pw.ForeignKeyField(RawMsg, backref='attachments')
     file_checksum = pw.CharField(index=True, help_text='Checksum of the binary file on disk')
     filename = pw.CharField(null=True)
     content_type = pw.CharField(null=True)
@@ -34,7 +34,7 @@ class MsgMeta(BaseModel):
     """
     Metadata for messages.
     """
-    rawmsg = pw.ForeignKeyField(RawMsg, related_name='msgmeta')
+    rawmsg = pw.ForeignKeyField(RawMsg, backref='msgmeta')
     imap_uid = pw.CharField(index=True)
     fetch_time = pw.DateTimeField(default=datetime.utcnow)
     
