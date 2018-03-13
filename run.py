@@ -81,12 +81,12 @@ def process_message(email_msg: Message, checksum: str, m_uid: str):
             if has_attachments:
                 for file_checksum, filename, content_type in attachments:
                     print(file_checksum, filename, content_type)
-                    Attachment.create(
-                        rawmsg=rmsg,
+                    att = Attachment.create(
                         file_checksum=file_checksum,
                         filename=filename,
                         content_type=content_type,
                     )
+                    rmsg.attachments.add(att)
 
             mmeta = MsgMeta.create(
                         rawmsg=rmsg,
@@ -152,7 +152,10 @@ def run():
 
 def bootstrap():
     db.connect()
-    db.create_tables([RawMsg, MsgMeta, Attachment])
+    db.create_tables([
+        RawMsg, MsgMeta, Attachment,
+        Attachment.rawmsg.get_through_model()
+    ])
 
 
 if __name__ == '__main__':
