@@ -83,42 +83,42 @@ def process_message(email_msg: Message, checksum: str, m_uid: str):
     each rawmsg, message meta and attachment.
     """
 
-        # We need to parse attachments first.
-        # They are extracted and removed from messages.
-        _attachments = [process_attachment(part) for part in email_msg.walk()]
-        attachments = list(filter(None, _attachments))
-        has_attachments = len(attachments) > 0
+    # We need to parse attachments first.
+    # They are extracted and removed from messages.
+    _attachments = [process_attachment(part) for part in email_msg.walk()]
+    attachments = list(filter(None, _attachments))
+    has_attachments = len(attachments) > 0
 
-        # Parse metadata
-        from_ = email_msg.get('From')
-        to = email_msg.get('To')
-        subject = email_msg.get('Subject')
-        date = email.utils.parsedate_to_datetime(email_msg.get('Date'))
+    # Parse metadata
+    from_ = email_msg.get('From')
+    to = email_msg.get('To')
+    subject = email_msg.get('Subject')
+    date = email.utils.parsedate_to_datetime(email_msg.get('Date'))
 
-        with db.atomic():
-            rmsg = RawMsg.create(email_blob=email_msg.as_bytes(), checksum=checksum)
+    with db.atomic():
+        rmsg = RawMsg.create(email_blob=email_msg.as_bytes(), checksum=checksum)
 
-            if has_attachments:
-                for file_checksum, filename, content_type in attachments:
-                    print(file_checksum, filename, content_type)
-                    att = Attachment.create(
-                        file_checksum=file_checksum,
-                        filename=filename,
-                        content_type=content_type,
-                    )
-                    rmsg.attachments.add(att)
+        if has_attachments:
+            for file_checksum, filename, content_type in attachments:
+                print(file_checksum, filename, content_type)
+                att = Attachment.create(
+                    file_checksum=file_checksum,
+                    filename=filename,
+                    content_type=content_type,
+                )
+                rmsg.attachments.add(att)
 
-            mmeta = MsgMeta.create(
-                        rawmsg=rmsg,
-                        imap_uid=m_uid,
-                        from_=from_,
-                        to=to,
-                        subject=subject,
-                        date=date,
-                        has_attachments=has_attachments,
-                    )
+        mmeta = MsgMeta.create(
+                    rawmsg=rmsg,
+                    imap_uid=m_uid,
+                    from_=from_,
+                    to=to,
+                    subject=subject,
+                    date=date,
+                    has_attachments=has_attachments,
+                )
 
-        print(m_uid, from_, to, subject)
+    print(m_uid, from_, to, subject)
 
 def process_attachment(part: Message):
     """
