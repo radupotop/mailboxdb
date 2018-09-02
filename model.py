@@ -26,8 +26,8 @@ class RawMsg(BaseModel):
 class Attachment(BaseModel):
     rawmsg = pw.ManyToManyField(RawMsg, backref='attachments')
     file_checksum = pw.CharField(index=True, help_text='Checksum of the binary file on disk')
-    filename = pw.CharField(null=True)
-    content_type = pw.CharField(null=True)
+    filename = pw.CharField(null=True, help_text='Original filename')
+    content_type = pw.CharField(null=True, help_text='Original content type')
 
 
 class MsgMeta(BaseModel):

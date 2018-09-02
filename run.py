@@ -12,17 +12,27 @@ OK_STATUS = 'OK'
 
 
 def _parse_config():
+    """
+    Read credentials from INI file.
+    """
     config = ConfigParser()
     config.read('credentials.ini')
     return config.defaults()
 
 def connect():
+    """
+    Connect to IMAP4 server.
+    """
     settings = _parse_config()
     mbox = IMAP4_SSL(settings['server'])
     mbox.login(settings['username'], settings['password'])
     return mbox
 
 def get_message_uids(mbox: IMAP4, label='INBOX'):
+    """
+    Get all message UIDs to be fetched from server.
+    Resume from the `latest UID` if there is one found.
+    """
     mbox.select(label, readonly=True)
     # mbox.select('"[Gmail]/All Mail"', readonly=True)
 
@@ -48,6 +58,10 @@ def get_message_uids(mbox: IMAP4, label='INBOX'):
     return message_uids
 
 def fetch_all_messages(mbox: IMAP4, message_uids: list):
+    """
+    Fetch each eligible message in RFC822 format.
+    Returns a generator.
+    """
     for m_uid in message_uids:
         msg_status, msg_data = mbox.uid('fetch', m_uid, '(RFC822)')
 
@@ -62,7 +76,13 @@ def fetch_all_messages(mbox: IMAP4, message_uids: list):
         yield email_msg, checksum, m_uid
 
 def process_message(email_msg: Message, checksum: str, m_uid: str):
-        
+    """
+    Process an entire message object.
+
+    Split attachment files from rawmsg, create db entries for
+    each rawmsg, message meta and attachment.
+    """
+
         # We need to parse attachments first.
         # They are extracted and removed from messages.
         _attachments = [process_attachment(part) for part in email_msg.walk()]
