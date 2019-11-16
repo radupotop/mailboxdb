@@ -1,3 +1,12 @@
-env/
+# Python stuff
+Mailboxdb.egg-info/
+venv/
 __pycache__/
+
+# IDE stuff
 .vscode/
+
+# App files
+app/attachments/
+app/messages.db
+credentials.ini*

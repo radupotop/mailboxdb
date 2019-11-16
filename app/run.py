@@ -42,7 +42,7 @@ def get_message_uids(mbox: IMAP4, label='INBOX'):
         box_status, box_data = mbox.uid('search', None, 'UID', latest_uid + ':*')
     else:
         box_status, box_data = mbox.uid('search', None, 'ALL')
-    
+
     if box_status != OK_STATUS:
         return
 
@@ -96,14 +96,14 @@ def process_message(email_msg: Message, checksum: str, m_uid: str):
     date = email.utils.parsedate_to_datetime(email_msg.get('Date'))
 
     with db.atomic():
-        rmsg = RawMsg.create(email_blob=email_msg.as_bytes(), checksum=checksum)
+        rmsg = RawMsg.create(email_blob=email_msg.as_bytes(), original_checksum=checksum)
 
         if has_attachments:
             for file_checksum, filename, content_type in attachments:
                 print(file_checksum, filename, content_type)
                 att = Attachment.create(
-                    file_checksum=file_checksum,
-                    filename=filename,
+                    checksum=file_checksum,
+                    original_filename=filename,
                     content_type=content_type,
                 )
                 rmsg.attachments.add(att)
@@ -131,13 +131,13 @@ def process_attachment(part: Message):
         return
 
     content_type = part.get_content_type()
-    payload = part.get_payload(decode=True)
+    payload = part.get_payload(decode=True) # decode from base64
     file_checksum = hashlib.sha256(payload).hexdigest()
 
     fp = open('attachments/' + file_checksum, 'wb')
     fp.write(payload)
     fp.close()
-    
+
     part.set_param(file_checksum, None, header='X-File-Checksum')
     part.set_payload(None)
 
