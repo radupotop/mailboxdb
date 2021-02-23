@@ -102,7 +102,7 @@ def process_message(email_msg: Message, checksum: str, m_uid: str):
             for file_checksum, filename, content_type in attachments:
                 print(file_checksum, filename, content_type)
                 att = Attachment.create(
-                    checksum=file_checksum,
+                    file_checksum=file_checksum,
                     original_filename=filename,
                     content_type=content_type,
                 )
