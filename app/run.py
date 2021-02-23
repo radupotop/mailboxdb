@@ -93,7 +93,7 @@ def process_message(email_msg: Message, checksum: str, m_uid: str):
     from_ = email_msg.get('From')
     to = email_msg.get('To')
     subject = email_msg.get('Subject')
-    date = email.utils.parsedate_to_datetime(email_msg.get('Date'))
+    date = email.utils.parsedate_to_datetime(email_msg.get('Date')) if email_msg.get('Date') else None
 
     with db.atomic():
         rmsg = RawMsg.create(email_blob=email_msg.as_bytes(), original_checksum=checksum)
