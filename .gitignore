@@ -7,6 +7,6 @@ __pycache__/
 .vscode/
 
 # App files
-attachments/
+./attachments/
 messages.db
 credentials.ini*
