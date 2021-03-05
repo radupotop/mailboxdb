@@ -10,3 +10,4 @@ __pycache__/
 ./attachments/
 messages.db
 credentials.ini*
+*.eml

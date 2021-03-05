@@ -8,12 +8,8 @@ import random
 from datetime import datetime
 from email import encoders
 from email.headerregistry import Address
-from email.message import EmailMessage, Message
-from email.mime.base import MIMEBase
-from email.mime.multipart import MIMEMultipart
-from email.mime.text import MIMEText
+from email.message import EmailMessage
 from pathlib import Path
-from typing import Tuple
 
 logging.basicConfig()
 log = logging.getLogger('compose-email')
@@ -41,59 +37,14 @@ def read_attach() -> Path:
     return rnd_file
 
 
-def compose_alternative(with_headers=True):
-    """
-    Compose an email with multipart/alternative MIME type.
-    """
-    msg = MIMEMultipart('alternative')
-
-    if with_headers:
-        now = datetime.utcnow()
-        msg['Subject'] = f'Test Email Alternative {now}'
-        msg['From'] = 'test1@localhost'
-        msg['To'] = 'test2@localhost'
-
-    text = read_lipsum()
-    html_body = f'<blockquote>{text}</blockquote>'
-
-    msg.attach(MIMEText(text, 'plain'))
-    msg.attach(MIMEText(html_body, 'html'))
-    return msg
+def _guess_mime(file_path: Path) -> tuple:
+    _mime = mimetypes.guess_type(str(file_path))[0]
+    if isinstance(_mime, str):
+        return tuple(_mime.split('/'))
+    return 'application', 'octet-stream'
 
 
-def _build_attachment_part():
-    bin_attach, filename = read_attach()
-    part = MIMEBase('application', 'octet-stream')
-    part.set_payload(bin_attach)
-    encoders.encode_base64(part)
-    part.add_header(
-        'Content-Disposition',
-        f'attachment; filename={filename}',
-    )
-    return part
-
-
-def compose_attachment():
-    """
-    Compose a multipart/mixed email message with:
-    - a multipart/alternative part
-    - an encoded attachment part
-    """
-    now = datetime.utcnow()
-
-    msg['Subject'] = f'Test Email Attachment {now}'
-    msg['From'] = 'test3@localhost'
-    msg['To'] = 'test4@localhost'
-
-    mixed = MIMEMultipart()  # mixed
-    mixed.attach(compose_alternative(with_headers=False))
-    mixed.attach(_build_attachment_part())
-
-    msg.attach(mixed)
-    return msg
-
-
-def compose_email(has_attachment=True):
+def compose_email(has_attachment=True) -> EmailMessage:
     now = datetime.utcnow()
 
     eml = EmailMessage()
@@ -110,8 +61,10 @@ def compose_email(has_attachment=True):
 
     if has_attachment:
         att = read_attach()
-        maintype, subtype = mimetypes.guess_type(str(att))[0].split('/')
-        eml.add_attachment(att.read_bytes(), filename=att.name, maintype=maintype, subtype=subtype)
+        maintype, subtype = _guess_mime(att)
+        eml.add_attachment(
+            att.read_bytes(), filename=att.name, maintype=maintype, subtype=subtype
+        )
         Path('emltest.eml').write_bytes(eml.as_bytes())
 
     return eml
