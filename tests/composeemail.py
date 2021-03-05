@@ -10,6 +10,7 @@ from email.mime.base import MIMEBase
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from pathlib import Path
+from typing import Tuple
 
 logging.basicConfig()
 log = logging.getLogger('compose-email')
@@ -28,7 +29,7 @@ def read_lipsum() -> str:
     return lipsum_list[rnd_line]
 
 
-def read_attach() -> tuple(bytes, str):
+def read_attach() -> Tuple[bytes, str]:
     att_path = Path(ATTACHMENT_PATH)
     assert att_path.is_dir
     file_list = list(att_path.iterdir())
@@ -37,16 +38,17 @@ def read_attach() -> tuple(bytes, str):
     return rnd_file.read_bytes(), rnd_file.name
 
 
-def compose_alternative():
+def compose_alternative(with_headers=True):
     """
     Compose an email with multipart/alternative MIME type.
     """
-    now = datetime.utcnow()
     msg = MIMEMultipart('alternative')
 
-    msg['Subject'] = f'Test Email Alternative {now}'
-    msg['From'] = 'test1@localhost'
-    msg['To'] = 'test2@localhost'
+    if with_headers:
+        now = datetime.utcnow()
+        msg['Subject'] = f'Test Email Alternative {now}'
+        msg['From'] = 'test1@localhost'
+        msg['To'] = 'test2@localhost'
 
     text = read_lipsum()
     html_body = f'<strong><em>{text}</em></strong>'
@@ -81,6 +83,6 @@ def compose_attachment():
     msg['From'] = 'test3@localhost'
     msg['To'] = 'test4@localhost'
 
-    msg.attach(compose_alternative())
+    msg.attach(compose_alternative(with_headers=False))
     msg.attach(_build_attachment_part())
     return msg
