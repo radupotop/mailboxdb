@@ -10,6 +10,7 @@ from email import encoders
 from email.headerregistry import Address
 from email.message import EmailMessage
 from pathlib import Path
+from typing import Tuple, Union
 
 logging.basicConfig()
 log = logging.getLogger('compose-email')
@@ -34,14 +35,17 @@ def read_attach() -> Path:
     file_list = list(att_path.iterdir())
     rnd_idx = random.randint(0, len(file_list) - 1)
     rnd_file = file_list[rnd_idx]
+    assert rnd_file.is_file
     return rnd_file
 
 
-def _guess_mime(file_path: Path) -> tuple:
-    _mime = mimetypes.guess_type(str(file_path))[0]
+def _guess_mime(file_path: Union[Path, str]) -> Tuple[str, str]:
+    _mime, _ = mimetypes.guess_type(str(file_path))
     if isinstance(_mime, str):
-        return tuple(_mime.split('/'))
-    return 'application', 'octet-stream'
+        maintype, subtype = _mime.split('/')
+    else:
+        maintype, subtype = 'application', 'octet-stream'
+    return maintype, subtype
 
 
 def compose_email(has_attachment=True) -> EmailMessage:
