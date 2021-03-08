@@ -40,9 +40,9 @@ def read_attach() -> Path:
 
 
 def _guess_mime(file_path: Union[Path, str]) -> Tuple[str, str]:
-    _mime, _ = mimetypes.guess_type(str(file_path))
-    if isinstance(_mime, str):
-        maintype, subtype = _mime.split('/')
+    ctype, _ = mimetypes.guess_type(str(file_path))
+    if isinstance(ctype, str):
+        maintype, subtype = ctype.split('/', 1)
     else:
         maintype, subtype = 'application', 'octet-stream'
     return maintype, subtype
