@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 #
-# Test helper for composing emails.
+# This is only used to build test emails.
 
 import logging
 import mimetypes
