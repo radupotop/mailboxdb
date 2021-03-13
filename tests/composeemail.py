@@ -69,6 +69,6 @@ def compose_email(has_attachment=True) -> EmailMessage:
         eml.add_attachment(
             att.read_bytes(), filename=att.name, maintype=maintype, subtype=subtype
         )
-        Path('emltest.eml').write_bytes(eml.as_bytes())
+        # Path('emltest.eml').write_bytes(eml.as_bytes())
 
     return eml

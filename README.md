@@ -25,3 +25,9 @@ Attachments are extracted and stored as separate files for simplified browsing a
 - config opt to switch between db backends
 - testing
 - use classes
+
+
+## Debugging
+
+    docker-compose exec mail bash
+    cd /srv/mail/testuser/Mail/mailboxes/INBOX/dbox-Mails
