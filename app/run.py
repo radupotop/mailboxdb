@@ -1,12 +1,17 @@
 import argparse
 import email
 import hashlib
+import logging
 from configparser import ConfigParser
 from email.message import Message
 from imaplib import IMAP4, IMAP4_SSL
+from pathlib import Path
 
 from model import Attachment, MsgMeta, RawMsg, db, pw
 
+logging.basicConfig()
+log = logging.getLogger(__name__)
+log.setLevel(logging.DEBUG)
 
 OK_STATUS = 'OK'
 
@@ -52,8 +57,8 @@ def get_message_uids(mbox: IMAP4, label='INBOX'):
     if latest_uid and latest_uid.encode() in message_uids:
         message_uids.remove(latest_uid.encode())
 
-    print(latest_uid)
-    print(len(message_uids))
+    log.info('Resuming from the latest UID.')
+    log.info('Latest UID %s, Message count %s', latest_uid, len(message_uids))
 
     return message_uids
 
@@ -66,8 +71,8 @@ def fetch_all_messages(mbox: IMAP4, message_uids: list):
         msg_status, msg_data = mbox.uid('fetch', m_uid, '(RFC822)')
 
         if msg_status != OK_STATUS:
-            print('Message {} not OK'.format(m_uid))
-            yield False
+            log.warning('Message UID %s was not OK', m_uid)
+            yield None
 
         raw_email = msg_data[0][1]
         checksum = hashlib.sha256(raw_email).hexdigest()
@@ -100,7 +105,7 @@ def process_message(email_msg: Message, checksum: str, m_uid: str):
 
         if has_attachments:
             for file_checksum, filename, content_type in attachments:
-                print(file_checksum, filename, content_type)
+                log.debug(file_checksum, filename, content_type)
                 att = Attachment.create(
                     file_checksum=file_checksum,
                     original_filename=filename,
@@ -118,7 +123,7 @@ def process_message(email_msg: Message, checksum: str, m_uid: str):
                     has_attachments=has_attachments,
                 )
 
-    print(m_uid, from_, to, subject)
+    log.debug(m_uid, from_, to, subject)
 
 def process_attachment(part: Message):
     """
@@ -128,15 +133,18 @@ def process_attachment(part: Message):
 
     filename = part.get_filename()
     if not filename:
-        return
+        return None
 
     content_type = part.get_content_type()
     payload = part.get_payload(decode=True) # decode from base64
     file_checksum = hashlib.sha256(payload).hexdigest()
+    file_path = Path(f'attachments/{file_checksum}')
 
-    fp = open('attachments/' + file_checksum, 'wb')
-    fp.write(payload)
-    fp.close()
+    if file_path.is_file():
+        log.info('Attachment file already exists for: %s', file_checksum)
+        log.info('Probably from a previous message. Skipping.')
+    else:
+        file_path.write_bytes(payload)
 
     part.set_param(file_checksum, None, header='X-File-Checksum')
     part.set_payload(None)
@@ -158,11 +166,11 @@ def run():
         process_message(*first_msg)
     except pw.IntegrityError as err:
         if 'UNIQUE constraint failed: rawmsg.checksum' in str(err):
-            print('Duplicate first message, carry on.')
+            log.info('Duplicate first message, carry on.')
         else:
             raise err
     except StopIteration:
-        print('No new messages.')
+        log.info('No new messages.')
 
     for msg in all_msg_gen:
         process_message(*msg)
