@@ -7,6 +7,7 @@ from email.message import Message
 from imaplib import IMAP4, IMAP4_SSL
 from pathlib import Path
 
+from imap import connect_mbox, fetch_all_messages, get_message_uids
 from model import Attachment, MsgMeta, RawMsg, db, pw
 
 logging.basicConfig()
@@ -14,74 +15,6 @@ log = logging.getLogger(__name__)
 log.setLevel(logging.DEBUG)
 
 OK_STATUS = 'OK'
-
-
-def _parse_config():
-    """
-    Read credentials from INI file.
-    """
-    config = ConfigParser()
-    config.read('credentials.ini')
-    return config.defaults()
-
-
-def connect():
-    """
-    Connect to IMAP4 server.
-    """
-    settings = _parse_config()
-    mbox = IMAP4_SSL(settings['server'])
-    mbox.login(settings['username'], settings['password'])
-    return mbox
-
-
-def get_message_uids(mbox: IMAP4, label='INBOX'):
-    """
-    Get all message UIDs to be fetched from server.
-    Resume from the `latest UID` if there is one found.
-    """
-    mbox.select(label, readonly=True)
-    # mbox.select('"[Gmail]/All Mail"', readonly=True)
-
-    latest_uid = MsgMeta.get_latest_uid()
-
-    if latest_uid:
-        box_status, box_data = mbox.uid('search', None, 'UID', latest_uid + ':*')
-    else:
-        box_status, box_data = mbox.uid('search', None, 'ALL')
-
-    if box_status != OK_STATUS:
-        return
-
-    # This will be a list of bytes
-    message_uids = box_data[0].split()
-
-    if latest_uid and latest_uid.encode() in message_uids:
-        message_uids.remove(latest_uid.encode())
-
-    log.info('Resuming from the latest UID.')
-    log.info('Latest UID %s, Message count %s', latest_uid, len(message_uids))
-
-    return message_uids
-
-
-def fetch_all_messages(mbox: IMAP4, message_uids: list):
-    """
-    Fetch each eligible message in RFC822 format.
-    Returns a generator.
-    """
-    for m_uid in message_uids:
-        msg_status, msg_data = mbox.uid('fetch', m_uid, '(RFC822)')
-
-        if msg_status != OK_STATUS:
-            log.warning('Message UID %s was not OK', m_uid)
-            yield None
-
-        raw_email = msg_data[0][1]
-        checksum = hashlib.sha256(raw_email).hexdigest()
-        email_msg = email.message_from_bytes(raw_email)
-
-        yield email_msg, checksum, m_uid
 
 
 def process_message(email_msg: Message, checksum: str, m_uid: str):
@@ -163,7 +96,7 @@ def process_attachment(part: Message):
 
 def run():
     db.connect()
-    mbox = connect()
+    mbox = connect_mbox()
     message_uids = get_message_uids(mbox)
     all_msg_gen = fetch_all_messages(mbox, message_uids)
 
