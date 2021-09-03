@@ -7,8 +7,9 @@ from email.message import Message
 from imaplib import IMAP4, IMAP4_SSL
 from pathlib import Path
 
+from bootstrap import bootstrap
 from imap import connect_mbox, fetch_all_messages, get_message_uids
-from model import Attachment, MsgMeta, RawMsg, db, pw
+from model import db, pw
 from process import process_message
 
 logging.basicConfig()
@@ -40,11 +41,6 @@ def run():
         process_message(*msg)
 
     mbox.logout()
-
-
-def bootstrap():
-    db.connect()
-    db.create_tables([RawMsg, MsgMeta, Attachment, Attachment.rawmsg.get_through_model()])
 
 
 if __name__ == '__main__':
