@@ -7,7 +7,8 @@ import hashlib
 import logging
 from email.message import Message
 from imaplib import IMAP4, IMAP4_SSL
-from typing import List
+from types import ListUIDs
+from typing import Optional
 
 from config import parse_config
 from model import MsgMeta
@@ -26,10 +27,11 @@ def connect_mbox() -> IMAP4:
     settings = parse_config()
     mbox = IMAP4_SSL(settings['server'])
     mbox.login(settings['username'], settings['password'])
+    log.info('Successfully logged in.')
     return mbox
 
 
-def get_message_uids(mbox: IMAP4, label: str = 'INBOX') -> List[str]:
+def get_message_uids(mbox: IMAP4, label: str = 'INBOX') -> Optional[ListUIDs]:
     """
     Get all message UIDs to be fetched from server.
     Resume from the `latest UID` if there is one found.
@@ -41,11 +43,14 @@ def get_message_uids(mbox: IMAP4, label: str = 'INBOX') -> List[str]:
 
     if latest_uid:
         box_status, box_data = mbox.uid('search', None, 'UID', latest_uid + ':*')
+        log.info('Resuming from the latest UID: %s', latest_uid)
     else:
         box_status, box_data = mbox.uid('search', None, 'ALL')
+        log.info('Fetching ALL messages.')
 
     if box_status != OK_STATUS:
-        return
+        log.error('Mbox error: %s', box_status)
+        return None
 
     # This will be a list of bytes
     message_uids = box_data[0].split()
@@ -53,13 +58,12 @@ def get_message_uids(mbox: IMAP4, label: str = 'INBOX') -> List[str]:
     if latest_uid and latest_uid.encode() in message_uids:
         message_uids.remove(latest_uid.encode())
 
-    log.info('Resuming from the latest UID.')
-    log.info('Latest UID %s, Message count %s', latest_uid, len(message_uids))
+    log.info('Message count: %s', len(message_uids))
 
     return message_uids
 
 
-def fetch_all_messages(mbox: IMAP4, message_uids: List[str]):
+def fetch_all_messages(mbox: IMAP4, message_uids: ListUIDs):
     """
     Fetch each eligible message in RFC822 format.
     Returns a generator.
