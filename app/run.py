@@ -24,6 +24,7 @@ def _parse_config():
     config.read('credentials.ini')
     return config.defaults()
 
+
 def connect():
     """
     Connect to IMAP4 server.
@@ -32,6 +33,7 @@ def connect():
     mbox = IMAP4_SSL(settings['server'])
     mbox.login(settings['username'], settings['password'])
     return mbox
+
 
 def get_message_uids(mbox: IMAP4, label='INBOX'):
     """
@@ -62,6 +64,7 @@ def get_message_uids(mbox: IMAP4, label='INBOX'):
 
     return message_uids
 
+
 def fetch_all_messages(mbox: IMAP4, message_uids: list):
     """
     Fetch each eligible message in RFC822 format.
@@ -79,6 +82,7 @@ def fetch_all_messages(mbox: IMAP4, message_uids: list):
         email_msg = email.message_from_bytes(raw_email)
 
         yield email_msg, checksum, m_uid
+
 
 def process_message(email_msg: Message, checksum: str, m_uid: str):
     """
@@ -98,7 +102,11 @@ def process_message(email_msg: Message, checksum: str, m_uid: str):
     from_ = email_msg.get('From')
     to = email_msg.get('To')
     subject = email_msg.get('Subject')
-    date = email.utils.parsedate_to_datetime(email_msg.get('Date')) if email_msg.get('Date') else None
+    date = (
+        email.utils.parsedate_to_datetime(email_msg.get('Date'))
+        if email_msg.get('Date')
+        else None
+    )
 
     with db.atomic():
         rmsg = RawMsg.create(email_blob=email_msg.as_bytes(), original_checksum=checksum)
@@ -114,16 +122,17 @@ def process_message(email_msg: Message, checksum: str, m_uid: str):
                 rmsg.attachments.add(att)
 
         mmeta = MsgMeta.create(
-                    rawmsg=rmsg,
-                    imap_uid=m_uid,
-                    from_=from_,
-                    to=to,
-                    subject=subject,
-                    date=date,
-                    has_attachments=has_attachments,
-                )
+            rawmsg=rmsg,
+            imap_uid=m_uid,
+            from_=from_,
+            to=to,
+            subject=subject,
+            date=date,
+            has_attachments=has_attachments,
+        )
 
     log.debug(m_uid, from_, to, subject)
+
 
 def process_attachment(part: Message):
     """
@@ -136,7 +145,7 @@ def process_attachment(part: Message):
         return None
 
     content_type = part.get_content_type()
-    payload = part.get_payload(decode=True) # decode from base64
+    payload = part.get_payload(decode=True)  # decode from base64
     file_checksum = hashlib.sha256(payload).hexdigest()
     file_path = Path(f'attachments/{file_checksum}')
 
@@ -180,17 +189,16 @@ def run():
 
 def bootstrap():
     db.connect()
-    db.create_tables([
-        RawMsg, MsgMeta, Attachment,
-        Attachment.rawmsg.get_through_model()
-    ])
+    db.create_tables([RawMsg, MsgMeta, Attachment, Attachment.rawmsg.get_through_model()])
 
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('-c', '--config', action='store_true', help='Configure the db')
     parser.add_argument('-r', '--run', action='store_true', help='Run main loop')
-    parser.add_argument('-q', '--quiet', action='store_true', help='Do not output anything')
+    parser.add_argument(
+        '-q', '--quiet', action='store_true', help='Do not output anything'
+    )
     parser.add_argument('--debug', action='store_true', help='Output debug messages')
     args = parser.parse_args()
 

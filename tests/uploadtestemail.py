@@ -10,7 +10,7 @@ PASSWORD = 'pass'
 MAILBOX = 'INBOX'
 
 
-def _auth():
+def _auth() -> IMAP4:
     mbox = IMAP4_SSL(SERVER)
     mbox.login(USERNAME, PASSWORD)
     return mbox

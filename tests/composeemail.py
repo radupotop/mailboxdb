@@ -21,7 +21,7 @@ LOREM_IMPSUM_PATH = 'tests/fixtures/lorem_ipsum.txt'
 LF = '\n'
 
 
-def read_lipsum() -> str:
+def _read_lipsum() -> str:
     lipsum = Path(LOREM_IMPSUM_PATH)
     assert lipsum.is_file
     lipsum_list = lipsum.read_text().split(LF)
@@ -29,7 +29,7 @@ def read_lipsum() -> str:
     return lipsum_list[rnd_line]
 
 
-def read_attach() -> Path:
+def _read_attach() -> Path:
     att_path = Path(ATTACHMENT_PATH)
     assert att_path.is_dir
     file_list = list(att_path.iterdir())
@@ -48,8 +48,8 @@ def _guess_mime(file_path: Union[Path, str]) -> Tuple[str, str]:
     return maintype, subtype
 
 
-def compose_email(has_attachment=True) -> EmailMessage:
-    now = datetime.utcnow()
+def compose_email(has_attachment: bool = True, save_output: bool = False) -> EmailMessage:
+    now = datetime.utcnow().isoformat()
 
     eml = EmailMessage()
     eml['Subject'] = f'Test Email Attachment {has_attachment}, Datetime {now}'
@@ -57,18 +57,19 @@ def compose_email(has_attachment=True) -> EmailMessage:
     eml['To'] = Address('Test2', 'test2', 'example.org')
     eml.preamble = 'Preamble'
 
-    text = read_lipsum()
+    text = _read_lipsum()
     html_body = f'<blockquote><strong><em>{text}</em></strong></blockquote>'
 
     eml.set_content(text)
     eml.add_alternative(html_body, subtype='html')
 
     if has_attachment:
-        att = read_attach()
+        att = _read_attach()
         maintype, subtype = _guess_mime(att)
         eml.add_attachment(
             att.read_bytes(), filename=att.name, maintype=maintype, subtype=subtype
         )
-        # Path('emltest.eml').write_bytes(eml.as_bytes())
+        if save_output:
+            Path(f'test_email_{now}.eml').write_bytes(eml.as_bytes())
 
     return eml
