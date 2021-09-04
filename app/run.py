@@ -1,11 +1,5 @@
 import argparse
-import email
-import hashlib
 import logging
-from configparser import ConfigParser
-from email.message import Message
-from imaplib import IMAP4, IMAP4_SSL
-from pathlib import Path
 
 from bootstrap import bootstrap
 from imap import connect_mbox, fetch_all_messages, get_message_uids

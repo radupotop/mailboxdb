@@ -1,4 +1,5 @@
 from datetime import datetime
+
 import peewee as pw
 
 db = pw.SqliteDatabase('messages.db')
