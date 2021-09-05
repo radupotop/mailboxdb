@@ -3,12 +3,11 @@ import logging
 
 from bootstrap import bootstrap
 from imap import connect_mbox, fetch_all_messages, get_message_uids
+from logger import get_logger
 from model import db, pw
 from process import process_message
 
-logging.basicConfig()
-log = logging.getLogger(__name__)
-log.setLevel(logging.DEBUG)
+log = get_logger(__name__)
 
 
 def run():

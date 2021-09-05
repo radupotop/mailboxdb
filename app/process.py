@@ -5,11 +5,10 @@ from email.message import Message
 from pathlib import Path
 from typing import Optional, Tuple
 
+from logger import get_logger
 from model import Attachment, MsgMeta, RawMsg, db, pw
 
-logging.basicConfig()
-log = logging.getLogger(__name__)
-log.setLevel(logging.DEBUG)
+log = get_logger(__name__)
 
 
 def process_message(email_msg: Message, checksum: str, m_uid: str):

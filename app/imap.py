@@ -11,11 +11,10 @@ from types import ListUIDs
 from typing import Optional
 
 from config import parse_config
+from logger import get_logger
 from model import MsgMeta
 
-logging.basicConfig()
-log = logging.getLogger(__name__)
-log.setLevel(logging.DEBUG)
+log = get_logger(__name__)
 
 OK_STATUS = 'OK'
 
