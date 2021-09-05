@@ -7,8 +7,7 @@ import hashlib
 import logging
 from email.message import Message
 from imaplib import IMAP4, IMAP4_SSL
-from types import ListUIDs
-from typing import Optional
+from typing import List, Optional
 
 from config import parse_config
 from logger import get_logger
@@ -16,6 +15,7 @@ from model import MsgMeta
 
 log = get_logger(__name__)
 
+ListUIDs = List[bytes]
 OK_STATUS = 'OK'
 
 
