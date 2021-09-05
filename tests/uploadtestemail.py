@@ -1,3 +1,7 @@
+#!/usr/bin/env python
+#
+# Upload test emails to local Dovecot instance.
+
 from email.message import EmailMessage
 from imaplib import IMAP4, IMAP4_SSL, Time2Internaldate
 from time import time
@@ -25,3 +29,8 @@ def populate_emails(count=5):
     emails = tuple(compose_email() for _ in range(count))
     resp = tuple(append_email(mbox, eml) for eml in emails)
     return emails, resp
+
+
+if __name__ == '__main__':
+    from pprint import pprint
+    pprint(populate_emails())
