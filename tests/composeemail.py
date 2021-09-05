@@ -2,7 +2,6 @@
 #
 # This is only used to build test emails.
 
-import logging
 import mimetypes
 import random
 from datetime import datetime
@@ -11,10 +10,6 @@ from email.headerregistry import Address
 from email.message import EmailMessage
 from pathlib import Path
 from typing import Tuple, Union
-
-logging.basicConfig()
-log = logging.getLogger('compose-email')
-log.setLevel(logging.INFO)
 
 ATTACHMENT_PATH = 'tests/fixtures/attachments/'
 LOREM_IMPSUM_PATH = 'tests/fixtures/lorem_ipsum.txt'
