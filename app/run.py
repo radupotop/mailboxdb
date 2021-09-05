@@ -7,7 +7,7 @@ from logger import get_logger
 from model import db, pw
 from process import process_message
 
-log = get_logger(__name__)
+log = get_logger('run')
 
 
 def run():

@@ -47,4 +47,4 @@ class MsgMeta(BaseModel):
 
     @classmethod
     def get_latest_uid(cls):
-        return cls.select(pw.fn.MAX(cls.imap_uid)).scalar()
+        return cls.select(cls.imap_uid, pw.fn.MAX(cls.id)).scalar()
