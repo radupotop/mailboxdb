@@ -1,169 +1,18 @@
 import argparse
-import email
-import hashlib
 import logging
-from configparser import ConfigParser
-from email.message import Message
-from imaplib import IMAP4, IMAP4_SSL
-from pathlib import Path
 
-from model import Attachment, MsgMeta, RawMsg, db, pw
+from bootstrap import bootstrap
+from imap import connect_mbox, fetch_all_messages, get_message_uids
+from logger import get_logger
+from model import db, pw
+from process import process_message
 
-logging.basicConfig()
-log = logging.getLogger(__name__)
-log.setLevel(logging.DEBUG)
-
-OK_STATUS = 'OK'
-
-
-def _parse_config():
-    """
-    Read credentials from INI file.
-    """
-    config = ConfigParser()
-    config.read('credentials.ini')
-    return config.defaults()
-
-
-def connect():
-    """
-    Connect to IMAP4 server.
-    """
-    settings = _parse_config()
-    mbox = IMAP4_SSL(settings['server'])
-    mbox.login(settings['username'], settings['password'])
-    return mbox
-
-
-def get_message_uids(mbox: IMAP4, label='INBOX'):
-    """
-    Get all message UIDs to be fetched from server.
-    Resume from the `latest UID` if there is one found.
-    """
-    mbox.select(label, readonly=True)
-    # mbox.select('"[Gmail]/All Mail"', readonly=True)
-
-    latest_uid = MsgMeta.get_latest_uid()
-
-    if latest_uid:
-        box_status, box_data = mbox.uid('search', None, 'UID', latest_uid + ':*')
-    else:
-        box_status, box_data = mbox.uid('search', None, 'ALL')
-
-    if box_status != OK_STATUS:
-        return
-
-    # This will be a list of bytes
-    message_uids = box_data[0].split()
-
-    if latest_uid and latest_uid.encode() in message_uids:
-        message_uids.remove(latest_uid.encode())
-
-    log.info('Resuming from the latest UID.')
-    log.info('Latest UID %s, Message count %s', latest_uid, len(message_uids))
-
-    return message_uids
-
-
-def fetch_all_messages(mbox: IMAP4, message_uids: list):
-    """
-    Fetch each eligible message in RFC822 format.
-    Returns a generator.
-    """
-    for m_uid in message_uids:
-        msg_status, msg_data = mbox.uid('fetch', m_uid, '(RFC822)')
-
-        if msg_status != OK_STATUS:
-            log.warning('Message UID %s was not OK', m_uid)
-            yield None
-
-        raw_email = msg_data[0][1]
-        checksum = hashlib.sha256(raw_email).hexdigest()
-        email_msg = email.message_from_bytes(raw_email)
-
-        yield email_msg, checksum, m_uid
-
-
-def process_message(email_msg: Message, checksum: str, m_uid: str):
-    """
-    Process an entire message object.
-
-    Split attachment files from rawmsg, create db entries for
-    each rawmsg, message meta and attachment.
-    """
-
-    # We need to parse attachments first.
-    # They are extracted and removed from messages.
-    _attachments = [process_attachment(part) for part in email_msg.walk()]
-    attachments = list(filter(None, _attachments))
-    has_attachments = len(attachments) > 0
-
-    # Parse metadata
-    from_ = email_msg.get('From')
-    to = email_msg.get('To')
-    subject = email_msg.get('Subject')
-    date = (
-        email.utils.parsedate_to_datetime(email_msg.get('Date'))
-        if email_msg.get('Date')
-        else None
-    )
-
-    with db.atomic():
-        rmsg = RawMsg.create(email_blob=email_msg.as_bytes(), original_checksum=checksum)
-
-        if has_attachments:
-            for file_checksum, filename, content_type in attachments:
-                log.debug(file_checksum, filename, content_type)
-                att = Attachment.create(
-                    file_checksum=file_checksum,
-                    original_filename=filename,
-                    content_type=content_type,
-                )
-                rmsg.attachments.add(att)
-
-        mmeta = MsgMeta.create(
-            rawmsg=rmsg,
-            imap_uid=m_uid,
-            from_=from_,
-            to=to,
-            subject=subject,
-            date=date,
-            has_attachments=has_attachments,
-        )
-
-    log.debug(m_uid, from_, to, subject)
-
-
-def process_attachment(part: Message):
-    """
-    Remove attachments from email messages and save them as files.
-    The message will be altered.
-    """
-
-    filename = part.get_filename()
-    if not filename:
-        return None
-
-    content_type = part.get_content_type()
-    payload = part.get_payload(decode=True)  # decode from base64
-    file_checksum = hashlib.sha256(payload).hexdigest()
-    file_path = Path(f'attachments/{file_checksum}')
-
-    if file_path.is_file():
-        log.info('Attachment file already exists for: %s', file_checksum)
-        log.info('Probably from a previous message. Skipping.')
-    else:
-        file_path.write_bytes(payload)
-
-    part.set_param(file_checksum, None, header='X-File-Checksum')
-    part.set_payload(None)
-
-    return file_checksum, filename, content_type
+log = get_logger(__name__)
 
 
 def run():
     db.connect()
-    mbox = connect()
+    mbox = connect_mbox()
     message_uids = get_message_uids(mbox)
     all_msg_gen = fetch_all_messages(mbox, message_uids)
 
@@ -185,11 +34,6 @@ def run():
         process_message(*msg)
 
     mbox.logout()
-
-
-def bootstrap():
-    db.connect()
-    db.create_tables([RawMsg, MsgMeta, Attachment, Attachment.rawmsg.get_through_model()])
 
 
 if __name__ == '__main__':
