@@ -41,7 +41,7 @@ def get_message_uids(mbox: IMAP4, label: str = 'INBOX') -> Optional[ListUIDs]:
     latest_uid = MsgMeta.get_latest_uid()
 
     if latest_uid:
-        box_status, box_data = mbox.uid('search', None, 'UID', latest_uid + ':*')
+        box_status, box_data = mbox.uid('search', None, 'UID', f'{latest_uid}:*')
         log.info('Resuming from the latest UID: %s', latest_uid)
     else:
         box_status, box_data = mbox.uid('search', None, 'ALL')
