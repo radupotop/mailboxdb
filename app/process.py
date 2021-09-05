@@ -40,7 +40,6 @@ def process_message(email_msg: Message, checksum: str, m_uid: str):
 
         if has_attachments:
             for file_checksum, filename, content_type in attachments:
-                log.debug(file_checksum, filename, content_type)
                 att = Attachment.create(
                     file_checksum=file_checksum,
                     original_filename=filename,
@@ -58,7 +57,10 @@ def process_message(email_msg: Message, checksum: str, m_uid: str):
             has_attachments=has_attachments,
         )
 
-    log.info(m_uid, from_, to, subject)
+    log.info(
+        'Processed message: m_uid=%s, from_=%s, to=%s, subject=%s',
+        m_uid, from_, to, subject,
+    )
 
 
 def process_attachment(part: Message) -> Optional[Tuple[str, str, str]]:
@@ -75,6 +77,11 @@ def process_attachment(part: Message) -> Optional[Tuple[str, str, str]]:
     payload = part.get_payload(decode=True)  # decode from base64
     file_checksum = hashlib.sha256(payload).hexdigest()
     file_path = Path(f'attachments/{file_checksum}')
+
+    log.debug(
+        'Attachment found: file_checksum=%s, filename=%s, content_type=%s',
+        file_checksum, filename, content_type
+    )
 
     if file_path.is_file():
         log.info('Attachment file already exists for: %s, Skipping', file_checksum)
