@@ -33,4 +33,5 @@ def populate_emails(count=5):
 
 if __name__ == '__main__':
     from pprint import pprint
+
     pprint(populate_emails())

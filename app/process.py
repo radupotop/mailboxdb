@@ -59,7 +59,10 @@ def process_message(email_msg: Message, checksum: str, m_uid: str):
 
     log.info(
         'Processed message: m_uid=%s, from_=%s, to=%s, subject=%s',
-        m_uid, from_, to, subject,
+        m_uid,
+        from_,
+        to,
+        subject,
     )
 
 
@@ -80,7 +83,9 @@ def process_attachment(part: Message) -> Optional[Tuple[str, str, str]]:
 
     log.debug(
         'Attachment found: file_checksum=%s, filename=%s, content_type=%s',
-        file_checksum, filename, content_type
+        file_checksum,
+        filename,
+        content_type,
     )
 
     if file_path.is_file():
