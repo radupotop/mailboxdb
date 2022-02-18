@@ -1,5 +1,5 @@
 # Python stuff
-Mailboxdb.egg-info/
+*.egg-info/
 venv/
 __pycache__/
 
@@ -7,6 +7,5 @@ __pycache__/
 .vscode/
 
 # App files
-messages.db
-credentials.ini*
+database/
 *.eml
