@@ -1,17 +1,20 @@
 #!/usr/bin/env python
 #
-# Upload test emails to local Dovecot instance.
+# Upload test emails to the local Dovecot instance
+# using IMAP append.
+#
 
+import os
 from email.message import EmailMessage
 from imaplib import IMAP4, IMAP4_SSL, Time2Internaldate
 from time import time
 
 from tests.composeemail import compose_email
 
-SERVER = 'mail'
-USERNAME = 'testuser'
-PASSWORD = 'pass'
-MAILBOX = 'INBOX'
+SERVER = os.getenv('IMAP_HOSTNAME', 'localhost')
+USERNAME = os.getenv('USERNAME', 'testuser')
+PASSWORD = os.getenv('PASSWORD', 'pass')
+MAILBOX = os.getenv('MAILBOX', 'INBOX')
 
 
 def _auth() -> IMAP4:

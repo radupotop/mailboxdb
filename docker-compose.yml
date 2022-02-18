@@ -9,3 +9,10 @@ services:
         build:
             context: ./
             dockerfile: ./docker/Dockerfile.test_fixtures
+        depends_on:
+            - mail
+        environment:
+            IMAP_HOSTNAME: mail
+            USERNAME: testuser
+            PASSWORD: pass
+            MAILBOX: INBOX
