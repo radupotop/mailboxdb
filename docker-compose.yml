@@ -16,3 +16,12 @@ services:
             USERNAME: testuser
             PASSWORD: pass
             MAILBOX: INBOX
+    app:
+        build:
+            context: ./
+            dockerfile: ./docker/Dockerfile
+        environment:
+            DB_FILE: /opt/database/messages.db
+            CONFIG_FILE: credentials.test.ini
+        volumes:
+            - ./database:/opt/database

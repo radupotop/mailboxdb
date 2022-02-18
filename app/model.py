@@ -1,8 +1,13 @@
+import os
 from datetime import datetime
+from pathlib import Path
 
 import peewee as pw
 
-db = pw.SqliteDatabase('messages.db')
+DB_FILE = os.getenv('DB_FILE', 'database/messages.db')
+print(DB_FILE)
+
+db = pw.SqliteDatabase(DB_FILE)
 
 
 class BaseModel(pw.Model):
