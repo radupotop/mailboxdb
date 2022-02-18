@@ -8,7 +8,7 @@ from time import time
 
 from tests.composeemail import compose_email
 
-SERVER = 'localhost'
+SERVER = 'mail'
 USERNAME = 'testuser'
 PASSWORD = 'pass'
 MAILBOX = 'INBOX'
@@ -24,7 +24,7 @@ def append_email(mbox: IMAP4, msg: EmailMessage):
     return mbox.append(MAILBOX, None, Time2Internaldate(time()), msg.as_bytes())
 
 
-def populate_emails(count=5):
+def populate_emails(count=10):
     mbox = _auth()
     emails = tuple(compose_email() for _ in range(count))
     resp = tuple(append_email(mbox, eml) for eml in emails)

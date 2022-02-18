@@ -5,3 +5,7 @@ services:
         ports:
             - "143:143"
             - "993:993"
+    test_fixtures:
+        build:
+            context: ./
+            dockerfile: ./docker/Dockerfile.test_fixtures

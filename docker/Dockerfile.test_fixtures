@@ -1,0 +1,5 @@
+FROM python:3.10.2-slim
+COPY . /opt/app
+WORKDIR /opt/app
+RUN pip install -e .
+CMD python tests/uploadtestemail.py
