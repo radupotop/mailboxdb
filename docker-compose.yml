@@ -24,4 +24,5 @@ services:
             DB_FILE: /opt/database/messages.db
             CONFIG_FILE: credentials.test.ini
         volumes:
-            - ./database:/opt/database
+            - ./database/:/opt/database/:rw
+            - ./attachments/:/opt/app/attachments/:rw

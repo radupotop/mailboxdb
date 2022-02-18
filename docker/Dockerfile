@@ -10,5 +10,5 @@ WORKDIR /opt/app
 RUN pip install -r requirements.txt && \
     pip install --no-cache-dir -e .
 
-CMD python app/bootstrap.py && \
+CMD python app/run.py --config && \
     python app/run.py --run --debug
