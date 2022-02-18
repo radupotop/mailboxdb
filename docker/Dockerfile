@@ -1,7 +1,6 @@
 FROM python:3.10.2-slim
 
 ENV PYTHONUNBUFFERED=1
-RUN apt-get update && apt-get -y install gcc
 RUN pip install -U pip setuptools wheel
 
 COPY . /opt/app
