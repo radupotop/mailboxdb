@@ -18,19 +18,17 @@ LF = '\n'
 
 def _read_lipsum() -> str:
     lipsum = Path(LOREM_IMPSUM_PATH)
-    assert lipsum.is_file
+    assert lipsum.is_file()
     lipsum_list = lipsum.read_text().split(LF)
-    rnd_line = random.randint(0, len(lipsum_list) - 1)
-    return lipsum_list[rnd_line]
+    return random.choice(lipsum_list)
 
 
 def _read_attach() -> Path:
     att_path = Path(ATTACHMENT_PATH)
-    assert att_path.is_dir
+    assert att_path.is_dir()
     file_list = list(att_path.iterdir())
-    rnd_idx = random.randint(0, len(file_list) - 1)
-    rnd_file = file_list[rnd_idx]
-    assert rnd_file.is_file
+    rnd_file = random.choice(file_list)
+    assert rnd_file.is_file()
     return rnd_file
 
 
