@@ -4,12 +4,10 @@ Methods for handling IMAP4 mailboxes.
 
 import email
 import hashlib
-import logging
-from email.message import Message
 from imaplib import IMAP4, IMAP4_SSL
 from typing import List, Optional
 
-from config import parse_config
+from config import INIConfigReader
 from logger import get_logger
 from model import MsgMeta
 
@@ -23,9 +21,9 @@ def connect_mbox() -> IMAP4:
     """
     Connect to IMAP4 server.
     """
-    settings = parse_config()
-    mbox = IMAP4_SSL(settings['server'])
-    mbox.login(settings['username'], settings['password'])
+    settings = INIConfigReader()
+    mbox = IMAP4_SSL(settings.server)
+    mbox.login(settings.username, settings.password)
     log.info('Successfully logged in.')
     return mbox
 
