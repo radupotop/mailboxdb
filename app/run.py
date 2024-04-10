@@ -1,10 +1,9 @@
 import argparse
-import logging
 
 from bootstrap import bootstrap
 from config import ConfigReader
 from imap import connect_mbox, fetch_all_messages, get_message_uids
-from logger import get_logger
+from logger import get_logger, quiet_root_logger
 from model import db, pw
 from process import process_message
 
@@ -67,6 +66,9 @@ if __name__ == '__main__':
     )
     parser.add_argument('--debug', action='store_true', help='Output debug messages')
     args = parser.parse_args()
+
+    if args.quiet:
+        quiet_root_logger()
 
     if args.run:
         run(args.creds)
