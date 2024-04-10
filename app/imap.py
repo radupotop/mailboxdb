@@ -17,11 +17,10 @@ ListUIDs = List[bytes]
 OK_STATUS = 'OK'
 
 
-def connect_mbox() -> IMAP4:
+def connect_mbox(settings: ConfigReader) -> IMAP4:
     """
     Connect to IMAP4 server.
     """
-    settings = ConfigReader()
     mbox = IMAP4_SSL(settings.server)
     mbox.login(settings.username, settings.password)
     log.info('Successfully logged in.')

@@ -2,6 +2,7 @@ import argparse
 import logging
 
 from bootstrap import bootstrap
+from config import ConfigReader
 from imap import connect_mbox, fetch_all_messages, get_message_uids
 from logger import get_logger
 from model import db, pw
@@ -10,9 +11,10 @@ from process import process_message
 log = get_logger('run')
 
 
-def run():
+def run(filename='credentials.ini'):
+    settings = ConfigReader(filename)
     db.connect()
-    mbox = connect_mbox()
+    mbox = connect_mbox(settings)
     message_uids = get_message_uids(mbox)
     all_msg_gen = fetch_all_messages(mbox, message_uids)
 
@@ -39,17 +41,35 @@ def run():
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument(
-        '-b', '--bootstrap', action='store_true', help='Initialise the db'
+        '-b',
+        '--bootstrap',
+        action='store_true',
+        help='Initialise the db',
     )
-    parser.add_argument('-r', '--run', action='store_true', help='Run main loop')
     parser.add_argument(
-        '-q', '--quiet', action='store_true', help='Do not output anything'
+        '-r',
+        '--run',
+        action='store_true',
+        help='Fetch outstanding emails',
+    )
+    parser.add_argument(
+        '-c',
+        '--creds',
+        type=str,
+        default='credentials.ini',
+        help='Credentials file to use',
+    )
+    parser.add_argument(
+        '-q',
+        '--quiet',
+        action='store_true',
+        help='Do not output info messages',
     )
     parser.add_argument('--debug', action='store_true', help='Output debug messages')
     args = parser.parse_args()
 
     if args.run:
-        run()
+        run(args.creds)
     elif args.bootstrap:
         try:
             bootstrap()
