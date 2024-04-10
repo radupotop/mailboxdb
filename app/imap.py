@@ -7,7 +7,7 @@ import hashlib
 from imaplib import IMAP4, IMAP4_SSL
 from typing import List, Optional
 
-from config import INIConfigReader
+from config import ConfigReader
 from logger import get_logger
 from model import MsgMeta
 
@@ -21,7 +21,7 @@ def connect_mbox() -> IMAP4:
     """
     Connect to IMAP4 server.
     """
-    settings = INIConfigReader()
+    settings = ConfigReader()
     mbox = IMAP4_SSL(settings.server)
     mbox.login(settings.username, settings.password)
     log.info('Successfully logged in.')
