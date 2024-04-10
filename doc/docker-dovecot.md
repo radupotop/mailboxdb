@@ -2,11 +2,13 @@
 
 This image comes with default configuration which accepts any user with password `pass`.
 To customize the image, mount `/etc/dovecot` and `/srv/mail` volumes.
+Since 2.3.20, you can also mount `/etc/dovecot/conf.d` for overrides and new configuration,
+make sure the files end up with `.conf`.
 
 ## Listeners
 
- - POP3 on 110, SSL 995
- - IMAP on 143, SSL 993
+ - POP3 on 110, TLS 995
+ - IMAP on 143, TLS 993
  - Submission on 587
  - LMTP on 24
  - ManageSieve on 4190
