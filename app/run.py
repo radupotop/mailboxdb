@@ -38,7 +38,9 @@ def run():
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('-c', '--config', action='store_true', help='Configure the db')
+    parser.add_argument(
+        '-b', '--bootstrap', action='store_true', help='Initialise the db'
+    )
     parser.add_argument('-r', '--run', action='store_true', help='Run main loop')
     parser.add_argument(
         '-q', '--quiet', action='store_true', help='Do not output anything'
@@ -48,7 +50,7 @@ if __name__ == '__main__':
 
     if args.run:
         run()
-    elif args.config:
+    elif args.bootstrap:
         try:
             bootstrap()
         except pw.OperationalError as err:
