@@ -10,8 +10,8 @@ from process import process_message
 log = get_logger('run')
 
 
-def run(filename='credentials.ini'):
-    settings = ConfigReader(filename)
+def run(creds_file='credentials.ini'):
+    settings = ConfigReader(creds_file)
     db.connect()
     mbox = connect_mbox(settings)
     message_uids = get_message_uids(mbox)
@@ -56,7 +56,7 @@ if __name__ == '__main__':
         '--creds',
         type=str,
         default='credentials.ini',
-        help='Credentials file to use',
+        help='Credentials INI file to use',
     )
     parser.add_argument(
         '-q',
@@ -64,7 +64,6 @@ if __name__ == '__main__':
         action='store_true',
         help='Do not output info messages',
     )
-    parser.add_argument('--debug', action='store_true', help='Output debug messages')
     args = parser.parse_args()
 
     if args.quiet:
@@ -77,7 +76,7 @@ if __name__ == '__main__':
             bootstrap()
         except pw.OperationalError as err:
             if 'already exists' in str(err):
-                print('The database is already configured.')
+                log.info('The database is already configured.')
             else:
                 raise err
     else:
