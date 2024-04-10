@@ -1,12 +1,11 @@
 import email
 import hashlib
-import logging
 from email.message import Message
 from pathlib import Path
 from typing import Optional, Tuple
 
 from logger import get_logger
-from model import Attachment, MsgMeta, RawMsg, db, pw
+from model import Attachment, MsgMeta, RawMsg, db
 
 log = get_logger(__name__)
 
@@ -47,7 +46,7 @@ def process_message(email_msg: Message, checksum: str, m_uid: str):
                 )
                 rmsg.attachments.add(att)
 
-        mmeta = MsgMeta.create(
+        MsgMeta.create(
             rawmsg=rmsg,
             imap_uid=m_uid,
             from_=from_,
@@ -79,7 +78,7 @@ def process_attachment(part: Message) -> Optional[Tuple[str, str, str]]:
     content_type = part.get_content_type()
     payload = part.get_payload(decode=True)  # decode from base64
     file_checksum = hashlib.sha256(payload).hexdigest()
-    file_path = Path(f'attachments/{file_checksum}')
+    file_path = Path('attachments/', file_checksum)
 
     log.debug(
         'Attachment found: file_checksum=%s, filename=%s, content_type=%s',
