@@ -9,7 +9,7 @@ def read_requirements(filename) -> list:
 
 setup(
     name='Mailboxdb',
-    version='0.2.2',
+    version='0.2.3',
     packages=find_packages(),
     install_requires=read_requirements('requirements.txt'),
     # extras_require=dict(tests=read_requirements('requirements.test.txt')),
