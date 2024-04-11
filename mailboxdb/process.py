@@ -42,10 +42,12 @@ def process_message(result: MboxResults):
 
         if has_attachments:
             for file_checksum, filename, content_type in attachments:
-                att = AttachmentMeta.create(
+                att, _ = AttachmentMeta.get_or_create(
                     file_checksum=file_checksum,
-                    original_filename=filename,
-                    content_type=content_type,
+                    defaults=dict(
+                        original_filename=filename,
+                        content_type=content_type,
+                    ),
                 )
                 rmsg.attachments.add(att)
 

@@ -25,7 +25,7 @@ class RawMsg(BaseModel):
 
 class AttachmentMeta(BaseModel):
     rawmsg = pw.ManyToManyField(RawMsg, backref='attachments')
-    file_checksum = pw.CharField(help_text='Checksum of the file on disk')
+    file_checksum = pw.CharField(unique=True, help_text='Checksum of the file on disk')
     original_filename = pw.CharField(help_text='Original filename')
     content_type = pw.CharField(help_text='Original content type')
 
