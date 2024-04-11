@@ -7,8 +7,6 @@ from config import ConfigReader
 from logger import get_logger
 from model import MsgMeta
 
-log = get_logger(__name__)
-
 ListUIDs = List[bytes]
 OK_STATUS = 'OK'
 
@@ -22,9 +20,10 @@ class Mbox:
         """
         Connect to IMAP4 server.
         """
+        self.log = get_logger(self.__class__.__name__)
         self.mbox = IMAP4_SSL(settings.server)
         self.mbox.login(settings.username, settings.password)
-        log.info('Successfully logged in.')
+        self.log.info('Successfully logged in.')
 
     def get_message_uids(self, label: str = 'INBOX') -> ListUIDs | None:
         """
@@ -38,13 +37,13 @@ class Mbox:
 
         if latest_uid:
             box_status, box_data = self.mbox.uid('search', None, 'UID', f'{latest_uid}:*')
-            log.info('Resuming from the latest UID: %s', latest_uid)
+            self.log.info('Resuming from the latest UID: %s', latest_uid)
         else:
             box_status, box_data = self.mbox.uid('search', None, 'ALL')
-            log.info('Fetching ALL messages.')
+            self.log.info('Fetching ALL messages.')
 
         if box_status != OK_STATUS:
-            log.error('Mbox error: %s', box_status)
+            self.log.error('Mbox error: %s', box_status)
             return None
 
         # This will be a list of bytes
@@ -53,7 +52,7 @@ class Mbox:
         if latest_uid and latest_uid.encode() in message_uids:
             message_uids.remove(latest_uid.encode())
 
-        log.info('Message count: %s', len(message_uids))
+        self.log.info('Message count: %s', len(message_uids))
 
         return message_uids
 
@@ -66,7 +65,7 @@ class Mbox:
             msg_status, msg_data = self.mbox.uid('fetch', m_uid, '(RFC822)')
 
             if msg_status != OK_STATUS:
-                log.warning('Message UID %s was not OK', m_uid)
+                self.log.warning('Message UID is not OK: %s', m_uid)
                 yield None
 
             raw_email = msg_data[0][1]
@@ -77,3 +76,4 @@ class Mbox:
 
     def logout(self):
         self.mbox.logout()
+        self.log.info('Logged out')
