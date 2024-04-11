@@ -2,7 +2,7 @@ import argparse
 
 from bootstrap import bootstrap
 from config import ConfigReader
-from imap import connect_mbox, fetch_all_messages, get_message_uids
+from imap import Mbox
 from logger import get_logger, quiet_root_logger
 from model import db, pw
 from process import process_message
@@ -13,9 +13,9 @@ log = get_logger('run')
 def run(creds_file='credentials.ini'):
     settings = ConfigReader(creds_file)
     db.connect()
-    mbox = connect_mbox(settings)
-    message_uids = get_message_uids(mbox)
-    all_msg_gen = fetch_all_messages(mbox, message_uids)
+    mbox = Mbox(settings)
+    message_uids = mbox.get_message_uids()
+    all_msg_gen = mbox.fetch_all_messages(message_uids)
 
     # Accept that the first message might be a duplicate.
     # This is because IMAP fetch will always get the latest message from the mailbox,
