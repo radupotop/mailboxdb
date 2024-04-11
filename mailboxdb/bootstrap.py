@@ -1,4 +1,4 @@
-from model import Attachment, MsgMeta, RawMsg, db
+from mailboxdb.model import Attachment, MsgMeta, RawMsg, db
 
 
 def bootstrap():

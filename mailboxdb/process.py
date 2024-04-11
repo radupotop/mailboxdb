@@ -3,9 +3,9 @@ import hashlib
 from email.message import Message
 from pathlib import Path
 
-from imap import MboxResults
-from logger import get_logger
-from model import Attachment, MsgMeta, RawMsg, db
+from mailboxdb.imap import MboxResults
+from mailboxdb.logger import get_logger
+from mailboxdb.model import Attachment, MsgMeta, RawMsg, db
 
 log = get_logger(__name__)
 

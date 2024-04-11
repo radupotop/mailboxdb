@@ -1,11 +1,11 @@
 import argparse
 
-from bootstrap import bootstrap
-from config import ConfigReader
-from imap import Mbox
-from logger import get_logger, quiet_root_logger
-from model import MsgMeta, db, pw
-from process import process_message
+from mailboxdb.bootstrap import bootstrap
+from mailboxdb.config import ConfigReader
+from mailboxdb.imap import Mbox
+from mailboxdb.logger import get_logger, quiet_root_logger
+from mailboxdb.model import MsgMeta, db, pw
+from mailboxdb.process import process_message
 
 log = get_logger('run')
 

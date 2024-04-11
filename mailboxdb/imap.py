@@ -4,8 +4,8 @@ from collections.abc import Generator
 from email.message import Message
 from imaplib import IMAP4_SSL
 
-from config import ConfigReader
-from logger import get_logger
+from mailboxdb.config import ConfigReader
+from mailboxdb.logger import get_logger
 
 ListUIDs = list[bytes]
 MboxResults = tuple[Message, str, bytes]
