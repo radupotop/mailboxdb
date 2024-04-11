@@ -27,9 +27,11 @@ def append_email(mbox: IMAP4, msg: EmailMessage):
     return mbox.append(MAILBOX, None, Time2Internaldate(time()), msg.as_bytes())
 
 
-def populate_emails(count=10):
+def populate_emails(do_dupes=False, count=10):
     mbox = _auth()
-    emails = tuple(compose_email() for _ in range(count))
+    emails = [compose_email() for _ in range(count)]
+    if do_dupes:
+        emails += emails[: int(count / 2)]
     resp = tuple(append_email(mbox, eml) for eml in emails)
     return emails, resp
 
@@ -37,4 +39,4 @@ def populate_emails(count=10):
 if __name__ == '__main__':
     from pprint import pprint
 
-    pprint(populate_emails())
+    pprint(populate_emails(do_dupes=True))

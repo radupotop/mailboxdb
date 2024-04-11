@@ -40,7 +40,7 @@ def _guess_mime(file_path: Path | str) -> tuple[str, str]:
 
 
 def compose_email(has_attachment: bool = True, save_output: bool = False) -> EmailMessage:
-    now = datetime.utcnow().isoformat()
+    now = datetime.utcnow().date()
 
     eml = EmailMessage()
     eml['Subject'] = f'Test Email Attachment {has_attachment}, Datetime {now}'
