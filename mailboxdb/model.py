@@ -17,7 +17,7 @@ class RawMsg(BaseModel):
     Raw message as fetched from IMAP server.
     """
 
-    email_blob = pw.BlobField(help_text='Email blob with attachments removed')
+    email_body = pw.BlobField(help_text='Email body with attachments removed')
     original_checksum = pw.CharField(
         help_text='Checksum of the original message from the server'
     )

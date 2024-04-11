@@ -38,7 +38,7 @@ def process_message(result: MboxResults):
     )
 
     with db.atomic():
-        rmsg = RawMsg.create(email_blob=email_msg.as_bytes(), original_checksum=checksum)
+        rmsg = RawMsg.create(email_body=email_msg.as_bytes(), original_checksum=checksum)
 
         if has_attachments:
             for file_checksum, filename, content_type in attachments:
