@@ -21,6 +21,11 @@ def process_message(result: MboxResults):
     """
     email_msg, checksum, m_uid = result
 
+    # Deduplicate RawMsg
+    if RawMsg.filter(original_checksum=checksum).exists():
+        log.info('Message already seen: CSUM=%s, UID=%s', checksum, m_uid)
+        return
+
     # We need to parse attachments first.
     # They are extracted and removed from messages.
     _attachments = [process_attachment(part) for part in email_msg.walk()]
@@ -42,6 +47,7 @@ def process_message(result: MboxResults):
 
         if has_attachments:
             for file_checksum, filename, content_type in attachments:
+                # Deduplicate AttachmentMeta
                 att, _ = AttachmentMeta.get_or_create(
                     file_checksum=file_checksum,
                     defaults=dict(
