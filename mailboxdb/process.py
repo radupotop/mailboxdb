@@ -99,7 +99,10 @@ def process_attachment(part: Message) -> AttachmentProperties | None:
     )
 
     if file_path.is_file():
-        log.info('Attachment file already exists for: %s, Skipping', file_checksum)
+        log.info(
+            'Attachment file already exists with checksum=%s, Not storing',
+            file_checksum,
+        )
     else:
         log.info('Writing file: %s', file_checksum)
         file_path.write_bytes(payload)
