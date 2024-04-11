@@ -7,7 +7,7 @@ from mailboxdb.imap import MboxResults
 from mailboxdb.logger import get_logger
 from mailboxdb.model import AttachmentMeta, MsgMeta, RawMsg, db
 
-log = get_logger(__name__)
+log = get_logger('Process')
 
 AttachmentProperties = tuple[str, str, str]
 

@@ -7,7 +7,7 @@ from mailboxdb.logger import get_logger, quiet_root_logger
 from mailboxdb.model import MsgMeta, db, pw
 from mailboxdb.process import process_message
 
-log = get_logger('run')
+log = get_logger('Run')
 
 
 def run(creds_file='credentials.ini'):
@@ -18,20 +18,9 @@ def run(creds_file='credentials.ini'):
     message_uids = mbox.get_message_uids(latest_uid=latest_uid)
     all_msg_gen = mbox.fetch_all_messages(message_uids)
 
-    # Accept that the first message might be a duplicate.
+    # The first message can be a duplicate.
     # This is because IMAP fetch will always get the latest message from the mailbox,
     # even if the UID we specify is higher than the latest one.
-    try:
-        first_msg = next(all_msg_gen)
-        process_message(first_msg)
-    except pw.IntegrityError as err:
-        if 'UNIQUE constraint failed: rawmsg.checksum' in str(err):
-            log.info('Duplicate first message, carry on.')
-        else:
-            raise err
-    except StopIteration:
-        log.info('No new messages.')
-
     for msg in all_msg_gen:
         process_message(msg)
 
