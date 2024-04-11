@@ -5,11 +5,9 @@
 import mimetypes
 import random
 from datetime import datetime
-from email import encoders
 from email.headerregistry import Address
 from email.message import EmailMessage
 from pathlib import Path
-from typing import Tuple, Union
 
 ATTACHMENT_PATH = 'tests/fixtures/attachments/'
 LOREM_IMPSUM_PATH = 'tests/fixtures/lorem_ipsum.txt'
@@ -32,7 +30,7 @@ def _read_attach() -> Path:
     return rnd_file
 
 
-def _guess_mime(file_path: Union[Path, str]) -> Tuple[str, str]:
+def _guess_mime(file_path: Path | str) -> tuple[str, str]:
     ctype, _ = mimetypes.guess_type(str(file_path))
     if isinstance(ctype, str):
         maintype, subtype = ctype.split('/', 1)

@@ -2,13 +2,14 @@ import email
 import hashlib
 from email.message import Message
 from pathlib import Path
-from typing import Optional, Tuple
 
 from imap import MboxResults
 from logger import get_logger
 from model import Attachment, MsgMeta, RawMsg, db
 
 log = get_logger(__name__)
+
+AttachmentProperties = tuple[str, str, str]
 
 
 def process_message(result: MboxResults):
@@ -23,7 +24,7 @@ def process_message(result: MboxResults):
     # We need to parse attachments first.
     # They are extracted and removed from messages.
     _attachments = [process_attachment(part) for part in email_msg.walk()]
-    attachments = list(filter(None, _attachments))
+    attachments: list[AttachmentProperties] = list(filter(None, _attachments))
     has_attachments = len(attachments) > 0
 
     # Parse metadata
@@ -67,7 +68,7 @@ def process_message(result: MboxResults):
     )
 
 
-def process_attachment(part: Message) -> Optional[Tuple[str, str, str]]:
+def process_attachment(part: Message) -> AttachmentProperties | None:
     """
     Remove attachments from email messages and save them as files.
     The message will be altered.

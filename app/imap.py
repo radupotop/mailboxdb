@@ -1,15 +1,15 @@
 import email
 import hashlib
+from collections.abc import Generator
 from email.message import Message
 from imaplib import IMAP4_SSL
-from typing import Generator, List, Tuple
 
 from config import ConfigReader
 from logger import get_logger
 from model import MsgMeta
 
-ListUIDs = List[bytes]
-MboxResults = Tuple[Message, str, bytes]
+ListUIDs = list[bytes]
+MboxResults = tuple[Message, str, bytes]
 MboxResultsGenerator = Generator[MboxResults | None, None, None]
 OK_STATUS = 'OK'
 
