@@ -4,19 +4,21 @@ from email.message import Message
 from pathlib import Path
 from typing import Optional, Tuple
 
+from imap import MboxResults
 from logger import get_logger
 from model import Attachment, MsgMeta, RawMsg, db
 
 log = get_logger(__name__)
 
 
-def process_message(email_msg: Message, checksum: str, m_uid: str):
+def process_message(result: MboxResults):
     """
     Process an entire message object.
 
     Split attachment files from rawmsg, create db entries for
     each rawmsg, message meta and attachment.
     """
+    email_msg, checksum, m_uid = result
 
     # We need to parse attachments first.
     # They are extracted and removed from messages.

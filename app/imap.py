@@ -1,13 +1,16 @@
 import email
 import hashlib
+from email.message import Message
 from imaplib import IMAP4_SSL
-from typing import Generator, List
+from typing import Generator, List, Tuple
 
 from config import ConfigReader
 from logger import get_logger
 from model import MsgMeta
 
 ListUIDs = List[bytes]
+MboxResults = Tuple[Message, str, bytes]
+MboxResultsGenerator = Generator[MboxResults | None, None, None]
 OK_STATUS = 'OK'
 
 
@@ -56,7 +59,7 @@ class Mbox:
 
         return message_uids
 
-    def fetch_all_messages(self, message_uids: ListUIDs) -> Generator:
+    def fetch_all_messages(self, message_uids: ListUIDs) -> MboxResultsGenerator:
         """
         Fetch each eligible message in RFC822 format.
         Returns a generator.

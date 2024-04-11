@@ -22,7 +22,7 @@ def run(creds_file='credentials.ini'):
     # even if the UID we specify is higher than the latest one.
     try:
         first_msg = next(all_msg_gen)
-        process_message(*first_msg)
+        process_message(first_msg)
     except pw.IntegrityError as err:
         if 'UNIQUE constraint failed: rawmsg.checksum' in str(err):
             log.info('Duplicate first message, carry on.')
@@ -32,7 +32,7 @@ def run(creds_file='credentials.ini'):
         log.info('No new messages.')
 
     for msg in all_msg_gen:
-        process_message(*msg)
+        process_message(msg)
 
     mbox.logout()
 
