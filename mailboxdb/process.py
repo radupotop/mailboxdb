@@ -5,7 +5,7 @@ from pathlib import Path
 
 from mailboxdb.imap import MboxResults
 from mailboxdb.logger import get_logger
-from mailboxdb.model import Attachment, MsgMeta, RawMsg, db
+from mailboxdb.model import AttachmentMeta, MsgMeta, RawMsg, db
 
 log = get_logger(__name__)
 
@@ -42,7 +42,7 @@ def process_message(result: MboxResults):
 
         if has_attachments:
             for file_checksum, filename, content_type in attachments:
-                att = Attachment.create(
+                att = AttachmentMeta.create(
                     file_checksum=file_checksum,
                     original_filename=filename,
                     content_type=content_type,
