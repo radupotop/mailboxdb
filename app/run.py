@@ -4,7 +4,7 @@ from bootstrap import bootstrap
 from config import ConfigReader
 from imap import Mbox
 from logger import get_logger, quiet_root_logger
-from model import db, pw
+from model import MsgMeta, db, pw
 from process import process_message
 
 log = get_logger('run')
@@ -13,8 +13,9 @@ log = get_logger('run')
 def run(creds_file='credentials.ini'):
     settings = ConfigReader(creds_file)
     db.connect()
+    latest_uid = MsgMeta.get_latest_uid()
     mbox = Mbox(settings)
-    message_uids = mbox.get_message_uids()
+    message_uids = mbox.get_message_uids(latest_uid=latest_uid)
     all_msg_gen = mbox.fetch_all_messages(message_uids)
 
     # Accept that the first message might be a duplicate.

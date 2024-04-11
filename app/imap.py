@@ -6,7 +6,6 @@ from imaplib import IMAP4_SSL
 
 from config import ConfigReader
 from logger import get_logger
-from model import MsgMeta
 
 ListUIDs = list[bytes]
 MboxResults = tuple[Message, str, bytes]
@@ -28,15 +27,13 @@ class Mbox:
         self.mbox.login(settings.username, settings.password)
         self.log.info('Successfully logged in.')
 
-    def get_message_uids(self, label: str = 'INBOX') -> ListUIDs | None:
+    def get_message_uids(self, latest_uid: str, label: str = 'INBOX') -> ListUIDs | None:
         """
         Get all message UIDs to be fetched from server.
         Resume from the `latest UID` if there is one found.
         """
         self.mbox.select(label, readonly=True)
         # self.mbox.select('"[Gmail]/All mail"', readonly=True)
-
-        latest_uid = MsgMeta.get_latest_uid()
 
         if latest_uid:
             box_status, box_data = self.mbox.uid('search', None, 'UID', f'{latest_uid}:*')
