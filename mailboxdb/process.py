@@ -6,10 +6,9 @@ from pathlib import Path
 from mailboxdb.imap import MboxResults
 from mailboxdb.logger import get_logger
 from mailboxdb.model import AttachmentMeta, MsgMeta, RawMsg, db
+from mailboxdb.schema import AttachmentProperties
 
 log = get_logger('Process')
-
-AttachmentProperties = tuple[str, str, str]
 
 
 def process_message(result: MboxResults):
@@ -110,4 +109,4 @@ def process_attachment(part: Message) -> AttachmentProperties | None:
     part.set_param(file_checksum, None, header='X-File-Checksum')
     part.set_payload(None)
 
-    return file_checksum, filename, content_type
+    return AttachmentProperties(file_checksum, filename, content_type)

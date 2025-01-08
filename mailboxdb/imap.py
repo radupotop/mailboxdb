@@ -1,16 +1,10 @@
 import email
 import hashlib
-from collections.abc import Generator
-from email.message import Message
 from imaplib import IMAP4_SSL
 
 from mailboxdb.config import ConfigReader
 from mailboxdb.logger import get_logger
-
-ListUIDs = list[bytes]
-MboxResults = tuple[Message, str, bytes]
-MboxResultsGenerator = Generator[MboxResults | None, None, None]
-OK_STATUS = 'OK'
+from mailboxdb.schema import OK_STATUS, ListUIDs, MboxResults, MboxResultsGenerator
 
 
 class Mbox:
@@ -72,7 +66,7 @@ class Mbox:
             checksum = hashlib.sha256(raw_email).hexdigest()
             email_msg = email.message_from_bytes(raw_email)
 
-            yield email_msg, checksum, m_uid
+            yield MboxResults(email_msg, checksum, m_uid)
 
     def logout(self):
         self.mbox.logout()
