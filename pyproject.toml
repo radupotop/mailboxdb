@@ -1,3 +1,19 @@
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "Mailboxdb"
+version = "0.3.2"
+description = "Fetch emails from a mailbox and store them in a sqlite database"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = ["peewee~=3.17"]
+
+[project.optional-dependencies]
+dev = ["bumpver"]
+tests = []
+
 [tool.bumpver]
 current_version = "0.3.2"
 version_pattern = "MAJOR.MINOR.PATCH"
@@ -11,5 +27,7 @@ tag = true
 push = true
 
 [tool.bumpver.file_patterns]
-"pyproject.toml" = ['current_version = "{version}"']
-"setup.py" = ["version='{version}'"]
+"pyproject.toml" = ['version = "{version}"']
+
+[tool.setuptools]
+packages = ["mailboxdb"]
