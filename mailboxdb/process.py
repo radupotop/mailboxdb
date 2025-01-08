@@ -1,12 +1,10 @@
 import email
 import hashlib
-from email.message import Message
 from pathlib import Path
 
-from mailboxdb.imap import MboxResults
 from mailboxdb.logger import get_logger
 from mailboxdb.model import AttachmentMeta, MsgMeta, RawMsg, db
-from mailboxdb.schema import AttachmentProperties
+from mailboxdb.schema import AttachmentProperties, MboxResults, Message
 
 log = get_logger('Process')
 
