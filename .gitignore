@@ -1,6 +1,6 @@
 # Python stuff
 Mailboxdb.egg-info/
-venv/
+.venv/
 __pycache__/
 
 # IDE stuff
