@@ -9,7 +9,7 @@ from email.message import EmailMessage
 from imaplib import IMAP4, IMAP4_SSL, Time2Internaldate
 from time import time
 
-from tests.composeemail import compose_email
+from composeemail import compose_email
 
 SERVER = os.getenv('IMAP_HOSTNAME', 'localhost')
 USERNAME = os.getenv('USERNAME', 'testuser')
