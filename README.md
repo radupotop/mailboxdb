@@ -17,8 +17,8 @@ SQLite database, and extracts attachments to disk with metadata in the DB.
     - raw message bytes in RawMsg
     - per-message metadata in MsgMeta (from/to/subject/date/uid/has_attachments)
     - attachment metadata in AttachmentMeta with a many-to-many link to the raw message
-- The DB schema is defined in mailboxdb/model.py and uses Peewee with SQLite at database/messages.db. mailboxdb/bootstrap.py
-  creates the tables.
+- The DB schema is defined in mailboxdb/model.py and uses Peewee with SQLite at database/messages.db. Migrations live in
+  migrations/ and are applied via mailboxdb/run.py --migrate.
 - Logging is basic and configured in mailboxdb/logger.py.
 - Test helpers in tests/ generate/upload sample emails; doc/docker-dovecot.md and docker-compose.yml support a local Dovecot
   IMAP instance for testing.
@@ -34,7 +34,7 @@ There’s no automated test suite. Testing is done via helper scripts and a Dock
 Typical manual flow:
 
 1. docker-compose up --build (starts IMAP and uploads test emails).
-2. Run the app (e.g., python mailboxdb/run.py -b then python mailboxdb/run.py -r) to fetch and store those emails.
+2. Run the app (e.g., python mailboxdb/run.py --migrate then python mailboxdb/run.py -r) to fetch and store those emails.
 
 
 ## Installing
@@ -51,10 +51,25 @@ Typical manual flow:
     username = user
     password = pass
 
+## Migrations
+
+Use the migration runner to create or update the schema:
+
+    python mailboxdb/run.py --migrate
+
+Migrations live in `migrations/` and are applied in filename order (use 4-digit prefixes like `0001_`).
+
+Rollback the last migration (or N migrations):
+
+    python mailboxdb/run.py --rollback
+    python mailboxdb/run.py --rollback 2
+
+Each migration can define an optional `rollback(db, migrator)` function.
+
 ## Todo
 
 - use logging for info and debug
-- use argparse to route between config, bootstrap, and run stages
+- use argparse to route between config, migrate, and run stages
 - config opt to switch between db backends
 - testing
 - use classes
