@@ -50,6 +50,8 @@ Typical manual flow:
     server = imap.gmail.com
     username = user
     password = pass
+    # Optional: fetch from a specific mailbox (defaults to INBOX).
+    # mailbox = "[Gmail]/All Mail"
     # Optional: use XOAUTH2 with a command that returns the access token.
     # use_xoauth2 = True
     # password_command = ("/usr/bin/oama", "access", "username@example.com")

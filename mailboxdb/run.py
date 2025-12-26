@@ -15,7 +15,10 @@ def run(creds_file='credentials.ini'):
     db.connect()
     latest_uid = MsgMeta.get_latest_uid()
     mbox = Mbox(settings)
-    message_uids = mbox.get_message_uids(latest_uid=latest_uid)
+    mailbox = getattr(settings, 'mailbox', 'INBOX')
+    message_uids = mbox.get_message_uids(latest_uid=latest_uid, label=mailbox)
+    if not message_uids:
+        raise RuntimeError(f'No message UIDs found for mailbox {mailbox}')
     all_msg_gen = mbox.fetch_all_messages(message_uids)
 
     # The first message can be a duplicate.
