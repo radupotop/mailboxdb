@@ -50,6 +50,9 @@ Typical manual flow:
     server = imap.gmail.com
     username = user
     password = pass
+    # Optional: use XOAUTH2 with a command that returns the access token.
+    # use_xoauth2 = True
+    # password_command = ("/usr/bin/oama", "access", "username@example.com")
 
 ## Migrations
 

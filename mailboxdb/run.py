@@ -1,9 +1,10 @@
 import argparse
+
 from mailboxdb.config import ConfigReader
 from mailboxdb.imap import Mbox
 from mailboxdb.logger import get_logger, quiet_root_logger
-from mailboxdb.model import MsgMeta, db, pw
 from mailboxdb.migrations import rollback_migrations, run_migrations
+from mailboxdb.model import MsgMeta, db, pw
 from mailboxdb.process import process_message
 
 log = get_logger('Run')

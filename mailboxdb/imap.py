@@ -3,6 +3,7 @@ import hashlib
 from imaplib import IMAP4_SSL
 
 from mailboxdb.config import ConfigReader
+from mailboxdb.imap_xoauth import authenticate_xoauth2, use_xoauth2
 from mailboxdb.logger import get_logger
 from mailboxdb.schema import OK_STATUS, ListUIDs, MboxResults, MboxResultsGenerator
 
@@ -18,7 +19,10 @@ class Mbox:
         """
         self.log = get_logger(self.__class__.__name__)
         self.mbox = IMAP4_SSL(settings.server)
-        self.mbox.login(settings.username, settings.password)
+        if use_xoauth2(settings):
+            authenticate_xoauth2(self.mbox, settings)
+        else:
+            self.mbox.login(settings.username, settings.password)
         self.log.info('Successfully logged in.')
 
     def get_message_uids(self, latest_uid: str, label: str = 'INBOX') -> ListUIDs | None:
