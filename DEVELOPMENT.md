@@ -13,7 +13,7 @@ SQLite database, and extracts attachments to disk with metadata in the DB.
     - per-message metadata in MsgMeta (from/to/subject/date/num_attachments)
     - attachment metadata in AttachmentMeta with a many-to-many link to the raw message
 - The DB schema is defined in src/mailboxdb/model.py and uses Peewee with SQLite at database/messages.db. Migrations live in
-  migrations/ and are applied via mailboxdb --migrate.
+  src/migrations/ and are applied via mailboxdb --migrate.
 - Logging is basic and configured in src/mailboxdb/logger.py.
 - Test helpers in tests/ generate/upload sample emails; doc/docker-dovecot.md and docker-compose.yml support a local Dovecot
   IMAP instance for testing.

@@ -31,7 +31,7 @@ Use the migration runner to create or update the schema:
 
     mailboxdb --migrate
 
-Migrations live in `migrations/` and are applied in filename order (use 4-digit prefixes like `0001_`).
+Migrations live in `src/migrations/` and are applied in filename order (use 4-digit prefixes like `0001_`).
 Applied migrations are tracked by SHA-256 checksum so renames don’t require DB changes.
 If a migration file changes after being applied, it will be treated as a new migration.
 
