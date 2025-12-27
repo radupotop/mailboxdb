@@ -1,14 +1,14 @@
 from __future__ import annotations
 
-import importlib.util
 import hashlib
-from datetime import datetime
+import importlib.util
 from pathlib import Path
 from typing import NamedTuple
 
 import peewee as pw
 from playhouse.migrate import SqliteMigrator
 
+from mailboxdb.date_helper import utcnow
 from mailboxdb.logger import get_logger
 from mailboxdb.model import db
 
@@ -18,7 +18,7 @@ log = get_logger('Migrations')
 class SchemaMigration(pw.Model):
     name = pw.CharField(unique=True)
     checksum = pw.CharField(unique=True)
-    applied_at = pw.DateTimeField(default=datetime.utcnow)
+    applied_at = pw.DateTimeField(default=utcnow)
 
     class Meta:
         database = db

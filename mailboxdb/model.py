@@ -1,6 +1,6 @@
-from datetime import datetime
-
 import peewee as pw
+
+from mailboxdb.date_helper import utcnow
 
 db = pw.SqliteDatabase('database/messages.db')
 
@@ -53,7 +53,7 @@ class MsgMeta(BaseModel):
 
     rawmsg = pw.ForeignKeyField(RawMsg, backref='msgmeta')
     labels = pw.ManyToManyField(Mailbox, backref='messages')
-    fetch_time = pw.DateTimeField(default=datetime.utcnow)
+    fetch_time = pw.DateTimeField(default=utcnow)
 
     from_ = pw.CharField(null=True)
     to = pw.CharField(null=True)

@@ -27,7 +27,9 @@ def process_message(result: MboxResults, mailbox: Mailbox | None = None):
             if msgmeta:
                 msgmeta.link_label(mailbox)
             else:
-                log.warning('MsgMeta missing for checksum=%s; mailbox link skipped', checksum)
+                log.warning(
+                    'MsgMeta missing for checksum=%s; mailbox link skipped', checksum
+                )
         return
 
     # We need to parse attachments first.
