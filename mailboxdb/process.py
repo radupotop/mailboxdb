@@ -3,13 +3,13 @@ import hashlib
 from pathlib import Path
 
 from mailboxdb.logger import get_logger
-from mailboxdb.model import AttachmentMeta, MsgMeta, RawMsg, db
+from mailboxdb.model import AttachmentMeta, Mailbox, MsgMeta, RawMsg, db
 from mailboxdb.schema import AttachmentProperties, MboxResults, Message
 
 log = get_logger('Process')
 
 
-def process_message(result: MboxResults):
+def process_message(result: MboxResults, mailbox: Mailbox | None = None):
     """
     Process an entire message object.
 
@@ -19,8 +19,15 @@ def process_message(result: MboxResults):
     email_msg, checksum, m_uid = result
 
     # Deduplicate RawMsg
-    if RawMsg.filter(original_checksum=checksum).exists():
+    rawmsg = RawMsg.get_or_none(RawMsg.original_checksum == checksum)
+    if rawmsg:
         log.info('Message already seen: CSUM=%s, UID=%s', checksum, m_uid)
+        if mailbox:
+            msgmeta = MsgMeta.get_or_none(MsgMeta.rawmsg == rawmsg)
+            if msgmeta:
+                msgmeta.labels.add(mailbox)
+            else:
+                log.warning('MsgMeta missing for checksum=%s; mailbox link skipped', checksum)
         return
 
     # We need to parse attachments first.
@@ -54,15 +61,16 @@ def process_message(result: MboxResults):
                 )
                 rmsg.attachments.add(att)
 
-        MsgMeta.create(
+        msgmeta = MsgMeta.create(
             rawmsg=rmsg,
-            imap_uid=m_uid,
             from_=from_,
             to=to,
             subject=subject,
             date=date,
             has_attachments=has_attachments,
         )
+        if mailbox:
+            msgmeta.labels.add(mailbox)
 
     log.info(
         'Processed message: m_uid=%s, from_=%s, to=%s, subject=%s',

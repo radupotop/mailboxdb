@@ -1,16 +1,8 @@
-from mailboxdb.model import AttachmentMeta, MsgMeta, RawMsg, db
+from mailboxdb.model import db, schema_tables
 
 
 def migrate(db, migrator):
-    db.create_tables(
-        [
-            RawMsg,
-            MsgMeta,
-            AttachmentMeta,
-            AttachmentMeta.rawmsg.get_through_model(),
-        ],
-        safe=True,
-    )
+    db.create_tables(schema_tables(), safe=True)
 
 
 def rollback(db, migrator):

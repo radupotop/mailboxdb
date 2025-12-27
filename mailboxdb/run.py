@@ -1,10 +1,11 @@
 import argparse
+from datetime import datetime
 
 from mailboxdb.config import ConfigReader
 from mailboxdb.imap import Mbox
 from mailboxdb.logger import get_logger, quiet_root_logger
 from mailboxdb.migrations import rollback_migrations, run_migrations
-from mailboxdb.model import MsgMeta, db, pw
+from mailboxdb.model import Mailbox, db, pw
 from mailboxdb.process import process_message
 
 log = get_logger('Run')
@@ -13,19 +14,35 @@ log = get_logger('Run')
 def run(creds_file='credentials.ini'):
     settings = ConfigReader(creds_file)
     db.connect()
-    latest_uid = MsgMeta.get_latest_uid()
     mbox = Mbox(settings)
     mailbox = getattr(settings, 'mailbox', 'INBOX')
-    message_uids = mbox.get_message_uids(latest_uid=latest_uid, label=mailbox)
+    mailbox_name = str(mailbox).strip() or 'INBOX'
+    mailbox_row, _ = Mailbox.get_or_create(name=mailbox_name)
+    log.info('Mailbox sync start: mailbox=%s last_uid=%s', mailbox_name, mailbox_row.last_uid)
+    message_uids = mbox.get_message_uids(
+        latest_uid=mailbox_row.last_uid,
+        label=mailbox_name,
+    )
     if not message_uids:
-        raise RuntimeError(f'No message UIDs found for mailbox {mailbox}')
+        raise RuntimeError(f'No message UIDs found for mailbox {mailbox_name}')
     all_msg_gen = mbox.fetch_all_messages(message_uids)
 
     # The first message can be a duplicate.
     # This is because IMAP fetch will always get the latest message from the mailbox,
     # even if the UID we specify is higher than the latest one.
     for msg in all_msg_gen:
-        process_message(msg)
+        process_message(msg, mailbox_row)
+
+    last_uid = max(int(uid) for uid in message_uids)
+    mailbox_row.last_uid = str(last_uid)
+    mailbox_row.last_sync_at = datetime.utcnow()
+    mailbox_row.save()
+    log.info(
+        'Mailbox sync complete: mailbox=%s last_uid=%s synced_at=%s',
+        mailbox_name,
+        mailbox_row.last_uid,
+        mailbox_row.last_sync_at,
+    )
 
     mbox.logout()
 

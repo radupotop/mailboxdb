@@ -31,13 +31,28 @@ class AttachmentMeta(BaseModel):
     content_type = pw.CharField(help_text='Original content type')
 
 
+class Mailbox(BaseModel):
+    """
+    Sync state for a mailbox.
+    """
+
+    name = pw.CharField(unique=True)
+    last_uid = pw.CharField(null=True)
+    last_sync_at = pw.DateTimeField(null=True)
+
+    @classmethod
+    def get_latest_uid(cls, name: str) -> str | None:
+        mailbox = cls.get_or_none(cls.name == name)
+        return mailbox.last_uid if mailbox else None
+
+
 class MsgMeta(BaseModel):
     """
     Metadata for messages.
     """
 
     rawmsg = pw.ForeignKeyField(RawMsg, backref='msgmeta')
-    imap_uid = pw.CharField(index=True)
+    labels = pw.ManyToManyField(Mailbox, backref='messages')
     fetch_time = pw.DateTimeField(default=datetime.utcnow)
 
     from_ = pw.CharField(null=True)
@@ -46,6 +61,13 @@ class MsgMeta(BaseModel):
     date = pw.CharField(null=True)
     has_attachments = pw.BooleanField(null=True)
 
-    @classmethod
-    def get_latest_uid(cls):
-        return cls.select(cls.imap_uid, pw.fn.MAX(cls.id)).scalar()
+
+def schema_tables() -> list[pw.Model]:
+    return [
+        RawMsg,
+        MsgMeta,
+        AttachmentMeta,
+        Mailbox,
+        AttachmentMeta.rawmsg.get_through_model(),
+        MsgMeta.labels.get_through_model(),
+    ]
