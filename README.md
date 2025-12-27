@@ -10,6 +10,7 @@ See [DEVELOPMENT.md](DEVELOPMENT.md) for local development notes.
     python -m venv env
     source env/bin/activate
     pip install -r requirements.txt
+    pip install -e .
 
 
 ## Credentials file format
@@ -28,7 +29,7 @@ See [DEVELOPMENT.md](DEVELOPMENT.md) for local development notes.
 
 Use the migration runner to create or update the schema:
 
-    python mailboxdb/run.py --migrate
+    mailboxdb --migrate
 
 Migrations live in `migrations/` and are applied in filename order (use 4-digit prefixes like `0001_`).
 Applied migrations are tracked by SHA-256 checksum so renames don’t require DB changes.
@@ -36,8 +37,8 @@ If a migration file changes after being applied, it will be treated as a new mig
 
 Rollback the last migration (or N migrations):
 
-    python mailboxdb/run.py --rollback
-    python mailboxdb/run.py --rollback 2
+    mailboxdb --rollback
+    mailboxdb --rollback 2
 
 Each migration can define an optional `rollback(db, migrator)` function.
 

@@ -26,7 +26,7 @@ class SchemaMigration(pw.Model):
 
 
 def _default_migrations_dir() -> Path:
-    return Path(__file__).resolve().parents[1] / 'migrations'
+    return Path(__file__).resolve().parents[2] / 'migrations'
 
 
 class MigrationFile(NamedTuple):

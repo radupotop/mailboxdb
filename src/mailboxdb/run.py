@@ -52,7 +52,7 @@ def run(creds_file='credentials.ini'):
     mbox.logout()
 
 
-if __name__ == '__main__':
+def main(argv=None):
     parser = argparse.ArgumentParser()
     parser.add_argument(
         '-m',
@@ -87,7 +87,7 @@ if __name__ == '__main__':
         action='store_true',
         help='Do not output info messages',
     )
-    args = parser.parse_args()
+    args = parser.parse_args(argv)
 
     if args.quiet:
         quiet_root_logger()
@@ -120,3 +120,7 @@ if __name__ == '__main__':
 
     if not did_action:
         parser.print_help()
+
+
+if __name__ == '__main__':
+    main()
