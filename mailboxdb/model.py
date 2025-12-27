@@ -59,7 +59,9 @@ class MsgMeta(BaseModel):
     to = pw.CharField(null=True)
     subject = pw.CharField(null=True)
     date = pw.CharField(null=True)
-    has_attachments = pw.BooleanField(null=True)
+    num_attachments = pw.IntegerField(null=True)
+    message_id = pw.CharField(null=True)
+    in_reply_to = pw.CharField(null=True)
 
     def link_label(self, mailbox: Mailbox) -> None:
         through = MsgMeta.labels.get_through_model()

@@ -36,7 +36,7 @@ def process_message(result: MboxResults, mailbox: Mailbox | None = None):
     # They are extracted and removed from messages.
     _attachments = [process_attachment(part) for part in email_msg.walk()]
     attachments: list[AttachmentProperties] = list(filter(None, _attachments))
-    has_attachments = len(attachments) > 0
+    num_attachments = len(attachments)
 
     # Parse metadata
     from_ = email_msg.get('From')
@@ -47,11 +47,13 @@ def process_message(result: MboxResults, mailbox: Mailbox | None = None):
         if email_msg.get('Date')
         else None
     )
+    message_id = email_msg.get('Message-Id')
+    in_reply_to = email_msg.get('In-Reply-To')
 
     with db.atomic():
         rmsg = RawMsg.create(email_body=email_msg.as_bytes(), original_checksum=checksum)
 
-        if has_attachments:
+        if num_attachments:
             for file_checksum, filename, content_type in attachments:
                 # Deduplicate AttachmentMeta
                 att, _ = AttachmentMeta.get_or_create(
@@ -69,7 +71,9 @@ def process_message(result: MboxResults, mailbox: Mailbox | None = None):
             to=to,
             subject=subject,
             date=date,
-            has_attachments=has_attachments,
+            num_attachments=num_attachments,
+            message_id=message_id,
+            in_reply_to=in_reply_to,
         )
         if mailbox:
             msgmeta.link_label(mailbox)
