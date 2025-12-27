@@ -1,4 +1,5 @@
 import argparse
+import sys
 
 from mailboxdb.config import ConfigReader
 from mailboxdb.date_helper import utcnow
@@ -26,9 +27,11 @@ def run(creds_file='credentials.ini'):
         label=mailbox_name,
     )
     if not message_uids:
-        raise RuntimeError(f'No message UIDs found for mailbox {mailbox_name}')
-    all_msg_gen = mbox.fetch_all_messages(message_uids)
+        log.warning('No new message UIDs found for mailbox %s', mailbox_name)
+        mbox.logout()
+        sys.exit(0)
 
+    all_msg_gen = mbox.fetch_all_messages(message_uids)
     # The first message can be a duplicate.
     # This is because IMAP fetch will always get the latest message from the mailbox,
     # even if the UID we specify is higher than the latest one.
