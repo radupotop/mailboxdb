@@ -61,6 +61,10 @@ class MsgMeta(BaseModel):
     date = pw.CharField(null=True)
     has_attachments = pw.BooleanField(null=True)
 
+    def link_label(self, mailbox: Mailbox) -> None:
+        through = MsgMeta.labels.get_through_model()
+        through.get_or_create(msgmeta=self, mailbox=mailbox)
+
 
 def schema_tables() -> list[pw.Model]:
     return [

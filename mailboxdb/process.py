@@ -25,7 +25,7 @@ def process_message(result: MboxResults, mailbox: Mailbox | None = None):
         if mailbox:
             msgmeta = MsgMeta.get_or_none(MsgMeta.rawmsg == rawmsg)
             if msgmeta:
-                msgmeta.labels.add(mailbox)
+                msgmeta.link_label(mailbox)
             else:
                 log.warning('MsgMeta missing for checksum=%s; mailbox link skipped', checksum)
         return
@@ -70,7 +70,7 @@ def process_message(result: MboxResults, mailbox: Mailbox | None = None):
             has_attachments=has_attachments,
         )
         if mailbox:
-            msgmeta.labels.add(mailbox)
+            msgmeta.link_label(mailbox)
 
     log.info(
         'Processed message: m_uid=%s, from_=%s, to=%s, subject=%s',
