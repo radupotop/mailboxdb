@@ -12,6 +12,7 @@ dependencies = ["peewee~=3.18"]
 
 [project.scripts]
 mailboxdb = "mailboxdb.run:main"
+mailboxdb_file = "mailboxdb.run:main_file"
 
 [project.optional-dependencies]
 dev = ["bumpver"]

@@ -1,5 +1,8 @@
 import argparse
+import email
+import hashlib
 import sys
+from pathlib import Path
 
 from mailboxdb.config import ConfigReader
 from mailboxdb.date_helper import utcnow
@@ -8,6 +11,7 @@ from mailboxdb.logger import get_logger, quiet_root_logger
 from mailboxdb.migrations import rollback_migrations, run_migrations
 from mailboxdb.model import Mailbox, db, pw
 from mailboxdb.process import process_message
+from mailboxdb.schema import MboxResults
 
 log = get_logger('Run')
 
@@ -51,6 +55,42 @@ def run(creds_file='credentials.ini'):
     )
 
     mbox.logout()
+
+
+def run_file(email_folder: str):
+    db.connect()
+    folder = Path(email_folder)
+    if not folder.is_dir():
+        raise RuntimeError(f'Email folder not found or not a directory: {folder}')
+
+    mailbox_name = f'FILE:{folder}'
+    mailbox_row, _ = Mailbox.get_or_create(name=mailbox_name)
+    log.info('File ingest start: folder=%s', folder)
+
+    found = False
+    for path in sorted(folder.glob('*.eml')):
+        found = True
+        raw_email = path.read_bytes()
+        checksum = hashlib.sha256(raw_email).hexdigest()
+        email_msg = email.message_from_bytes(raw_email)
+        process_message(
+            MboxResults(email_msg, checksum, path.name.encode()),
+            mailbox_row,
+        )
+
+    if not found:
+        log.warning('No .eml files found in folder %s', folder)
+        mailbox_row.last_sync_at = utcnow()
+        mailbox_row.save()
+        sys.exit(0)
+
+    mailbox_row.last_sync_at = utcnow()
+    mailbox_row.save()
+    log.info(
+        'File ingest complete: folder=%s synced_at=%s',
+        folder,
+        mailbox_row.last_sync_at,
+    )
 
 
 def main(argv=None):
@@ -121,6 +161,27 @@ def main(argv=None):
 
     if not did_action:
         parser.print_help()
+
+
+def main_file(argv=None):
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        'email_folder',
+        type=str,
+        help='Folder containing .eml files',
+    )
+    parser.add_argument(
+        '-q',
+        '--quiet',
+        action='store_true',
+        help='Do not output info messages',
+    )
+    args = parser.parse_args(argv)
+
+    if args.quiet:
+        quiet_root_logger()
+
+    run_file(args.email_folder)
 
 
 if __name__ == '__main__':

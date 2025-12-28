@@ -12,6 +12,10 @@ This project is open-source, but contributions are not automatically accepted; r
     uv venv --seed --clear
     uv pip install -e .
 
+File ingestion:
+
+    mailboxdb_file path/to/email_messages
+
 ## Credentials file format
 
     [DEFAULT]
