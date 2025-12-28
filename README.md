@@ -9,11 +9,8 @@ This project is open-source, but contributions are not automatically accepted; r
 
 ## Installing
 
-    python -m venv env
-    source env/bin/activate
-    pip install -r requirements.txt
-    pip install -e .
-
+    uv venv --seed --clear
+    uv pip install -e .
 
 ## Credentials file format
 
