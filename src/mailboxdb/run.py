@@ -16,11 +16,12 @@ def run(creds_file='credentials.ini'):
     settings = ConfigReader(creds_file)
     db.connect()
     mbox = Mbox(settings)
-    mailbox = getattr(settings, 'mailbox', 'INBOX')
-    mailbox_name = str(mailbox).strip() or 'INBOX'
+    mailbox_name = getattr(settings, 'mailbox', 'INBOX')
     mailbox_row, _ = Mailbox.get_or_create(name=mailbox_name)
     log.info(
-        'Mailbox sync start: mailbox=%s last_uid=%s', mailbox_name, mailbox_row.last_uid
+        'Mailbox sync start: mailbox=%s last_uid=%s',
+        mailbox_name,
+        mailbox_row.last_uid,
     )
     message_uids = mbox.get_message_uids(
         latest_uid=mailbox_row.last_uid,
