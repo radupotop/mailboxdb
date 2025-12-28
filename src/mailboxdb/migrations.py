@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import hashlib
 import importlib.util
 from pathlib import Path
 from typing import NamedTuple
@@ -8,7 +7,7 @@ from typing import NamedTuple
 import peewee as pw
 from playhouse.migrate import SqliteMigrator
 
-from mailboxdb.date_helper import utcnow
+from mailboxdb.helpers import sha256sum, utcnow
 from mailboxdb.logger import get_logger
 from mailboxdb.model import db
 
@@ -35,7 +34,7 @@ class MigrationFile(NamedTuple):
 
     @staticmethod
     def compute_checksum(path: Path) -> str:
-        return hashlib.sha256(path.read_bytes()).hexdigest()
+        return sha256sum(path.read_bytes())
 
     @classmethod
     def from_path(cls, path: Path) -> 'MigrationFile':

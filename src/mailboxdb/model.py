@@ -1,6 +1,6 @@
 import peewee as pw
 
-from mailboxdb.date_helper import utcnow
+from mailboxdb.helpers import utcnow
 
 db = pw.SqliteDatabase('database/messages.db')
 

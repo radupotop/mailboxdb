@@ -1,7 +1,7 @@
 import email
-import hashlib
 from pathlib import Path
 
+from mailboxdb.helpers import sha256sum
 from mailboxdb.logger import get_logger
 from mailboxdb.model import AttachmentMeta, Mailbox, MsgMeta, RawMsg, db
 from mailboxdb.schema import AttachmentProperties, MboxResults, Message
@@ -99,7 +99,7 @@ def process_attachment(part: Message) -> AttachmentProperties | None:
 
     content_type = part.get_content_type()
     payload = part.get_payload(decode=True)  # decode from base64
-    file_checksum = hashlib.sha256(payload).hexdigest()
+    file_checksum = sha256sum(payload)
     file_path = Path('attachments/', file_checksum)
 
     log.debug(

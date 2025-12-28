@@ -1,11 +1,10 @@
 import argparse
 import email
-import hashlib
 import sys
 from pathlib import Path
 
 from mailboxdb.config import ConfigReader
-from mailboxdb.date_helper import utcnow
+from mailboxdb.helpers import sha256sum, utcnow
 from mailboxdb.imap import Mbox
 from mailboxdb.logger import get_logger, quiet_root_logger
 from mailboxdb.migrations import rollback_migrations, run_migrations
@@ -73,7 +72,7 @@ def run_file(email_folder: str):
         found = True
         last_uid = path.name
         raw_email = path.read_bytes()
-        checksum = hashlib.sha256(raw_email).hexdigest()
+        checksum = sha256sum(raw_email)
         email_msg = email.message_from_bytes(raw_email)
         process_message(
             MboxResults(email_msg, checksum, path.name.encode()),
