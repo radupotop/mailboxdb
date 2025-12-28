@@ -42,7 +42,7 @@ def run(creds_file='credentials.ini'):
     for msg in all_msg_gen:
         process_message(msg, mailbox_row)
 
-    last_uid = max(int(uid) for uid in message_uids)
+    last_uid = max(map(int, message_uids))
     mailbox_row.last_uid = str(last_uid)
     mailbox_row.last_sync_at = utcnow()
     mailbox_row.save()
@@ -80,7 +80,7 @@ def run_file(email_folder: str):
         )
 
     mailbox_row.last_sync_at = utcnow()
-    if last_uid is not None:
+    if last_uid:
         mailbox_row.last_uid = last_uid
     mailbox_row.save()
 
