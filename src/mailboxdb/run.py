@@ -66,11 +66,12 @@ def run_file(email_folder: str):
     mailbox_row, _ = Mailbox.get_or_create(name=mailbox_name)
     log.info('File ingest start: folder=%s', folder)
 
-    found = False
-    last_uid = None
-    for path in sorted(folder.glob('*.eml')):
-        found = True
-        last_uid = path.name
+    all_msg_paths: list[Path] = sorted(folder.glob('*.eml'))
+    if not len(all_msg_paths):
+        log.warning('No .eml files found in folder %s', folder)
+        sys.exit(0)
+
+    for path in all_msg_paths:
         raw_email = path.read_bytes()
         checksum = sha256sum(raw_email)
         email_msg = email.message_from_bytes(raw_email)
@@ -79,14 +80,9 @@ def run_file(email_folder: str):
             mailbox_row,
         )
 
+    mailbox_row.last_uid = all_msg_paths[-1].name
     mailbox_row.last_sync_at = utcnow()
-    if last_uid:
-        mailbox_row.last_uid = last_uid
     mailbox_row.save()
-
-    if not found:
-        log.warning('No .eml files found in folder %s', folder)
-        sys.exit(0)
 
     log.info(
         'File ingest complete: folder=%s last_uid=%s synced_at=%s',
