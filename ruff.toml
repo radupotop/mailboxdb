@@ -1,0 +1,18 @@
+# https://docs.astral.sh/ruff/settings/
+#
+# extend = "../pyproject.toml"
+line-length = 90
+
+[lint]
+select = ["E", "F"]  # Pyflakes and pycodestyle
+ignore = ["E501"]    # Allow long lines
+unfixable = ["F401"] # Allow unused imports
+
+[lint.per-file-ignores]
+"__init__.py" = ["E402", "F401"] # Ignore import violations
+
+[format]
+quote-style = "preserve"
+indent-style = "space"
+skip-magic-trailing-comma = false
+line-ending = "lf"
