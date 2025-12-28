@@ -1,8 +1,7 @@
-import email
 from imaplib import IMAP4_SSL
 
 from mailboxdb.config import ConfigReader
-from mailboxdb.helpers import sha256sum
+from mailboxdb.helpers import email_from_bytes, sha256sum
 from mailboxdb.imap_xoauth import authenticate_xoauth2, use_xoauth2
 from mailboxdb.logger import get_logger
 from mailboxdb.schema import OK_STATUS, ListUIDs, MboxResults, MboxResultsGenerator
@@ -68,7 +67,7 @@ class Mbox:
 
             raw_email = msg_data[0][1]
             checksum = sha256sum(raw_email)
-            email_msg = email.message_from_bytes(raw_email)
+            email_msg = email_from_bytes(raw_email)
 
             yield MboxResults(email_msg, checksum, m_uid)
 
