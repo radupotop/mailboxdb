@@ -1,9 +1,11 @@
 # Mailboxdb
 
-Fetch emails from a mailbox and store them in a db.
+Fetch emails from a mailbox and store them in a db.  
 Attachments are extracted and stored as separate files for simplified browsing and space efficiency.
 
 See [DEVELOPMENT.md](DEVELOPMENT.md) for local development notes.
+
+This project is open-source, but contributions are not automatically accepted; requests will be reviewed case by case.
 
 ## Installing
 
