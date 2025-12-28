@@ -6,7 +6,7 @@ line-length = 90
 [lint]
 select = ["E", "F"]  # Pyflakes and pycodestyle
 ignore = ["E501"]    # Allow long lines
-unfixable = ["F401"] # Allow unused imports
+# unfixable = ["F401"] # Allow unused imports
 
 [lint.per-file-ignores]
 "__init__.py" = ["E402", "F401"] # Ignore import violations

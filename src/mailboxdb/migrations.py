@@ -126,7 +126,6 @@ def rollback_migrations(
     migration_files = _list_migration_files(root)
     files_by_checksum = {m.checksum: m.path for m in migration_files}
 
-    all_rows = list(SchemaMigration.select())
     rows = list(SchemaMigration.select().order_by(SchemaMigration.id.desc()).limit(steps))
     if not rows:
         log.info('No migrations to rollback.')

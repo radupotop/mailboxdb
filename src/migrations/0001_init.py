@@ -1,4 +1,4 @@
-from mailboxdb.model import db, schema_tables
+from mailboxdb.model import schema_tables
 
 
 def migrate(db, migrator):
