@@ -65,7 +65,7 @@ class Mbox:
                 self.log.warning('Message UID is not OK: %s', m_uid)
                 yield None
 
-            raw_email = msg_data[0][1]
+            raw_email: bytes = msg_data[0][1]
             checksum = sha256sum(raw_email)
             email_msg = email_from_bytes(raw_email)
 
