@@ -3,7 +3,7 @@ from pathlib import Path
 
 
 class INIConfigReader:
-    def __init__(self, filename='credentials.ini'):
+    def __init__(self, filename: str = 'credentials.ini'):
         if not Path(filename).is_file():
             raise RuntimeError(f'Config file not found {filename}')
         config = configparser.ConfigParser()

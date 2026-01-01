@@ -1,5 +1,6 @@
 import ast
 import subprocess
+from imaplib import IMAP4
 
 from mailboxdb.config import ConfigReader
 
@@ -39,7 +40,7 @@ def xoauth2_string(user: str, token: str) -> bytes:
     return f'user={user}\x01auth=Bearer {token}\x01\x01'.encode()
 
 
-def authenticate_xoauth2(mbox, settings: ConfigReader) -> None:
+def authenticate_xoauth2(mbox: IMAP4, settings: ConfigReader):
     command = password_command(settings)
     token = command_token(command)
     mbox.authenticate('XOAUTH2', lambda _: xoauth2_string(settings.username, token))

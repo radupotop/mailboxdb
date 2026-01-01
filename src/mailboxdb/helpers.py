@@ -1,9 +1,10 @@
 import email
 import hashlib
 from datetime import datetime, timezone
+from email.message import Message
 
 
-def email_from_bytes(raw_email: bytes):
+def email_from_bytes(raw_email: bytes) -> Message:
     return email.message_from_bytes(raw_email)
 
 

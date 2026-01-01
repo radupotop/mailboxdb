@@ -24,7 +24,9 @@ class Mbox:
             self.mbox.login(settings.username, settings.password)
         self.log.info('Successfully logged in.')
 
-    def get_message_uids(self, latest_uid: str, label: str = 'INBOX') -> ListUIDs | None:
+    def get_message_uids(
+        self, latest_uid: str | None, label: str = 'INBOX'
+    ) -> ListUIDs | None:
         """
         Get all message UIDs to be fetched from server.
         Resume from the `latest UID` if there is one found.

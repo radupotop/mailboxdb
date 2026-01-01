@@ -8,6 +8,7 @@ import os
 from email.message import EmailMessage
 from imaplib import IMAP4, IMAP4_SSL, Time2Internaldate
 from time import time
+from typing import TypeAlias
 
 from composeemail import compose_email
 
@@ -15,6 +16,9 @@ SERVER = os.getenv('IMAP_HOSTNAME', 'localhost')
 USERNAME = os.getenv('USERNAME', 'testuser')
 PASSWORD = os.getenv('PASSWORD', 'pass')
 MAILBOX = os.getenv('MAILBOX', 'INBOX')
+# imaplib.IMAP4.append returns a tuple of (status, data)
+# where status is a string like "OK" and data is a list of raw server response lines as bytes.
+IMAPAppendResponse: TypeAlias = tuple[str, list[bytes]]
 
 
 def _auth() -> IMAP4:
@@ -23,11 +27,13 @@ def _auth() -> IMAP4:
     return mbox
 
 
-def append_email(mbox: IMAP4, msg: EmailMessage):
+def append_email(mbox: IMAP4, msg: EmailMessage) -> IMAPAppendResponse:
     return mbox.append(MAILBOX, None, Time2Internaldate(time()), msg.as_bytes())
 
 
-def populate_emails(do_dupes=False, count=10):
+def populate_emails(
+    do_dupes: bool = False, count: int = 10
+) -> tuple[list[EmailMessage], tuple[IMAPAppendResponse, ...]]:
     mbox = _auth()
     emails = [compose_email() for _ in range(count)]
     if do_dupes:

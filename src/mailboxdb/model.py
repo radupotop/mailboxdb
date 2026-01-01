@@ -63,7 +63,7 @@ class MsgMeta(BaseModel):
     message_id = pw.CharField(null=True)
     in_reply_to = pw.CharField(null=True)
 
-    def link_label(self, mailbox: Mailbox) -> None:
+    def link_label(self, mailbox: Mailbox):
         through = MsgMeta.labels.get_through_model()
         through.get_or_create(msgmeta=self, mailbox=mailbox)
 

@@ -14,7 +14,7 @@ from mailboxdb.schema import MboxResults
 log = get_logger('Run')
 
 
-def run(creds_file='credentials.ini'):
+def run(creds_file: str = 'credentials.ini'):
     settings = ConfigReader(creds_file)
     db.connect()
     mbox = Mbox(settings)
@@ -91,7 +91,7 @@ def run_file(email_folder: str):
     )
 
 
-def main(argv=None):
+def main(argv: list[str] | None = None):
     parser = argparse.ArgumentParser()
     parser.add_argument(
         '-m',
@@ -161,7 +161,7 @@ def main(argv=None):
         parser.print_help()
 
 
-def main_file(argv=None):
+def main_file(argv: list[str] | None = None):
     parser = argparse.ArgumentParser()
     parser.add_argument(
         'email_folder',

@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import importlib.util
 from pathlib import Path
+from types import ModuleType
 from typing import NamedTuple
 
 import peewee as pw
@@ -61,7 +62,7 @@ def _list_migration_files(root: Path) -> list[MigrationFile]:
     return migrations
 
 
-def _load_migration(path: Path):
+def _load_migration(path: Path) -> ModuleType:
     spec = importlib.util.spec_from_file_location(path.stem, path)
     if spec is None or spec.loader is None:
         raise RuntimeError(f'Failed to load migration {path}')
