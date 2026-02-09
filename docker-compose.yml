@@ -1,18 +1,17 @@
-version: '3.9'
 services:
-    mail:
-        image: dovecot/dovecot:2.3.21
-        ports:
-            - "143:143"
-            - "993:993"
-    test_fixtures:
-        build:
-            context: ./
-            dockerfile: ./docker/Dockerfile.test_fixtures
-        depends_on:
-            - mail
-        environment:
-            IMAP_HOSTNAME: mail
-            USERNAME: testuser
-            PASSWORD: pass
-            MAILBOX: INBOX
+  mail:
+    image: dovecot/dovecot:2.3.21
+    ports:
+      - "143:143"
+      - "993:993"
+  test_fixtures:
+    build:
+      context: ./
+      dockerfile: ./docker/Dockerfile.test_fixtures
+    depends_on:
+      - mail
+    environment:
+      IMAP_HOSTNAME: mail
+      USERNAME: testuser
+      PASSWORD: pass
+      MAILBOX: INBOX
