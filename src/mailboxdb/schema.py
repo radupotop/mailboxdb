@@ -1,11 +1,11 @@
 from collections.abc import Generator
 from email.message import Message
-from typing import NamedTuple
+from typing import Any, NamedTuple, TypeAlias, cast
 
+NO_CHARSET = cast(Any, None)
 OK_STATUS = 'OK'
-UID = bytes
-
-ListUIDs = list[UID]
+UID: TypeAlias = bytes
+ListUIDs: TypeAlias = list[UID]
 
 
 class MboxResults(NamedTuple):
@@ -14,7 +14,7 @@ class MboxResults(NamedTuple):
     uid: UID
 
 
-MboxResultsGenerator = Generator[MboxResults | None, None, None]
+MboxResultsGenerator: TypeAlias = Generator[MboxResults]
 
 
 class AttachmentProperties(NamedTuple):

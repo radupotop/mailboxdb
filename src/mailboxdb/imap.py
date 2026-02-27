@@ -4,7 +4,13 @@ from mailboxdb.config import ConfigReader
 from mailboxdb.helpers import email_from_bytes, sha256sum
 from mailboxdb.imap_xoauth import authenticate_xoauth2, use_xoauth2
 from mailboxdb.logger import get_logger
-from mailboxdb.schema import OK_STATUS, ListUIDs, MboxResults, MboxResultsGenerator
+from mailboxdb.schema import (
+    NO_CHARSET,
+    OK_STATUS,
+    ListUIDs,
+    MboxResults,
+    MboxResultsGenerator,
+)
 
 
 class Mbox:
@@ -35,10 +41,12 @@ class Mbox:
         # self.mbox.select('"[Gmail]/All mail"', readonly=True)
 
         if latest_uid:
-            box_status, box_data = self.mbox.uid('search', None, 'UID', f'{latest_uid}:*')
+            box_status, box_data = self.mbox.uid(
+                'search', NO_CHARSET, 'UID', f'{latest_uid}:*'
+            )
             self.log.info('Resuming from the latest UID: %s', latest_uid)
         else:
-            box_status, box_data = self.mbox.uid('search', None, 'ALL')
+            box_status, box_data = self.mbox.uid('search', NO_CHARSET, 'ALL')
             self.log.info('Fetching ALL messages.')
 
         if box_status != OK_STATUS:
@@ -61,11 +69,11 @@ class Mbox:
         Returns a generator.
         """
         for m_uid in message_uids:
-            msg_status, msg_data = self.mbox.uid('fetch', m_uid, '(RFC822)')
+            msg_status, msg_data = self.mbox.uid('fetch', m_uid.decode(), '(RFC822)')
 
             if msg_status != OK_STATUS:
                 self.log.warning('Message UID is not OK: %s', m_uid)
-                yield None
+                continue  # skip
 
             raw_email: bytes = msg_data[0][1]
             checksum = sha256sum(raw_email)

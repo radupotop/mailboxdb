@@ -68,7 +68,7 @@ class MsgMeta(BaseModel):
         through.get_or_create(msgmeta=self, mailbox=mailbox)
 
 
-def schema_tables() -> list[pw.Model]:
+def schema_tables() -> list[type[pw.Model]]:
     return [
         RawMsg,
         MsgMeta,
