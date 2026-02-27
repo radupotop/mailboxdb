@@ -2,7 +2,7 @@ import argparse
 import sys
 from pathlib import Path
 
-from mailboxdb.config import ConfigReader
+from mailboxdb.config import Config
 from mailboxdb.helpers import email_from_bytes, sha256sum, utcnow
 from mailboxdb.imap import Mbox
 from mailboxdb.logger import get_logger, quiet_root_logger
@@ -15,7 +15,7 @@ log = get_logger('Run')
 
 
 def run(creds_file: str = 'credentials.ini'):
-    settings = ConfigReader(creds_file)
+    settings = Config.from_ini(creds_file)
     db.connect()
     mbox = Mbox(settings)
     mailbox_name = getattr(settings, 'mailbox', 'INBOX')

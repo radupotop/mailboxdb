@@ -1,6 +1,6 @@
 from imaplib import IMAP4_SSL
 
-from mailboxdb.config import ConfigReader
+from mailboxdb.config import Config
 from mailboxdb.helpers import email_from_bytes, sha256sum
 from mailboxdb.imap_xoauth import authenticate_xoauth2, use_xoauth2
 from mailboxdb.logger import get_logger
@@ -18,7 +18,7 @@ class Mbox:
     Methods for handling IMAP4 mailboxes.
     """
 
-    def __init__(self, settings: ConfigReader):
+    def __init__(self, settings: Config):
         """
         Connect to IMAP4 server.
         """
