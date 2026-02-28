@@ -8,7 +8,7 @@ version = "0.5.2"
 description = "Fetch emails from a mailbox and store them in a sqlite database"
 readme = "README.md"
 requires-python = ">=3.10"
-dependencies = ["peewee~=3.18"]
+dependencies = ["peewee~=3.19"]
 
 [project.scripts]
 mailboxdb = "mailboxdb.run:main"
